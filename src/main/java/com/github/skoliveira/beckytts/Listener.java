@@ -20,11 +20,13 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
 
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 /**
@@ -33,7 +35,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  */
 public class Listener extends ListenerAdapter
 {
-    private final Bot bot;
+	private final Bot bot;
     
     public Listener(Bot bot)
     {
@@ -66,6 +68,12 @@ public class Listener extends ListenerAdapter
                 }
             }, 0, 24, TimeUnit.HOURS);
         }
+    }
+
+    @Override
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    	Settings s = bot.getSettingsManager().getSettings(event.getGuild());
+        
     }
     
     @Override

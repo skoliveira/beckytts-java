@@ -35,9 +35,10 @@ public class Settings implements GuildSettingsProvider
     protected long roleId;
     private int volume;
     private boolean repeatMode;
+    private boolean autoTtsMode;
     private String prefix;
     
-    public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean repeatMode, String prefix)
+    public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean repeatMode, boolean autoTtsMode, String prefix)
     {
         this.manager = manager;
         try
@@ -66,10 +67,11 @@ public class Settings implements GuildSettingsProvider
         }
         this.volume = volume;
         this.repeatMode = repeatMode;
+        this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
     }
     
-    public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean repeatMode, String prefix)
+    public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean repeatMode, boolean autoTtsMode, String prefix)
     {
         this.manager = manager;
         this.textId = textId;
@@ -77,6 +79,7 @@ public class Settings implements GuildSettingsProvider
         this.roleId = roleId;
         this.volume = volume;
         this.repeatMode = repeatMode;
+        this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
     }
     
@@ -104,6 +107,11 @@ public class Settings implements GuildSettingsProvider
     public boolean getRepeatMode()
     {
         return repeatMode;
+    }
+    
+    public boolean getAutoTtsMode()
+    {
+        return autoTtsMode;
     }
     
     public String getPrefix()
@@ -145,6 +153,12 @@ public class Settings implements GuildSettingsProvider
     public void setRepeatMode(boolean mode)
     {
         this.repeatMode = mode;
+        this.manager.writeSettings();
+    }
+    
+    public void setAutoTtsMode(boolean mode)
+    {
+        this.autoTtsMode = mode;
         this.manager.writeSettings();
     }
     

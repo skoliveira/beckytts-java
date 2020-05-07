@@ -47,6 +47,7 @@ public class SettingsManager implements GuildSettingsManager
                         o.has("dj_role_id")      ? o.getString("dj_role_id")      : null,
                         o.has("volume")          ? o.getInt("volume")             : 100,
                         o.has("repeat")          ? o.getBoolean("repeat")         : false,
+                        o.has("autotts")         ? o.getBoolean("autotts")        : false,
                         o.has("prefix")          ? o.getString("prefix")          : null));
             });
         } catch(IOException | JSONException e) {
@@ -73,7 +74,7 @@ public class SettingsManager implements GuildSettingsManager
     
     private Settings createDefaultSettings()
     {
-        return new Settings(this, 0, 0, 0, 100, false, null);
+        return new Settings(this, 0, 0, 0, 100, false, false, null);
     }
     
     protected void writeSettings()
@@ -92,6 +93,8 @@ public class SettingsManager implements GuildSettingsManager
                 o.put("volume",s.getVolume());
             if(s.getRepeatMode())
                 o.put("repeat", true);
+            if(s.getAutoTtsMode())
+                o.put("autotts", true);
             if(s.getPrefix() != null)
                 o.put("prefix", s.getPrefix());
             obj.put(Long.toString(key), o);
