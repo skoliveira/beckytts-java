@@ -23,3 +23,6 @@ target/
 .settings/
 .classpath
 .project
+
+# my project file
+config.txt
