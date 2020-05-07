@@ -61,6 +61,7 @@ public class SettingsCmd extends Command
                         + "\nDJ Role: " + (role == null ? "None" : "**" + role.getName() + "**")
                         + "\nCustom Prefix: " + (s.getPrefix() == null ? "None" : "`" + s.getPrefix() + "`")
                         + "\nRepeat Mode: **" + (s.getRepeatMode() ? "On" : "Off") + "**"
+                        + "\nAutoTTS Mode: **" + (s.getAutoTtsMode() ? "On" : "Off") + "**"
                         )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()

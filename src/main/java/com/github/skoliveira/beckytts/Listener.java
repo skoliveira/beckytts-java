@@ -20,13 +20,26 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.skoliveira.beckytts.audio.AudioHandler;
+import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.settings.Settings;
+import com.github.skoliveira.beckytts.tts.GoogleTTS;
+import com.github.skoliveira.beckytts.utils.FormatUtil;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 /**
@@ -71,15 +84,134 @@ public class Listener extends ListenerAdapter
     }
 
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-    	Settings s = bot.getSettingsManager().getSettings(event.getGuild());
-        
-    }
-    
-    @Override
     public void onShutdown(ShutdownEvent event) 
     {
         bot.shutdown();
     }
 
+    @Override
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    	Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
+    	if(!settings.getAutoTtsMode())
+    		return;
+    	
+    	TextChannel tchannel = settings.getTextChannel(event.getGuild());    	
+    	if(tchannel!=null && !event.getChannel().equals(tchannel))
+            return;
+        
+    	VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
+        if(current==null)
+            current = settings.getVoiceChannel(event.getGuild());
+        GuildVoiceState userState = event.getMember().getVoiceState();
+        if(!userState.inVoiceChannel() || userState.isDeafened() || (current!=null && !userState.getChannel().equals(current)))
+            return;
+
+        VoiceChannel afkChannel = event.getGuild().getAfkChannel();
+        if(afkChannel != null && afkChannel.equals(userState.getChannel()))
+            return;
+        
+        if(!settings.containsAutoTtsUser(event.getMember()))
+        	return;
+        
+        if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())
+        {
+            try 
+            {
+                event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
+            }
+            catch(PermissionException ex) 
+            {
+                return;
+            }
+        }
+
+        String args = event.getMessage().getContentStripped().startsWith("<") && event.getMessage().getContentStripped().endsWith(">") 
+                ? event.getMessage().getContentStripped().substring(1,event.getMessage().getContentStripped().length()-1) 
+                : event.getMessage().getContentStripped().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getMessage().getContentStripped();
+        String url = "";        
+        GoogleTTS gtts = new GoogleTTS();
+		try {
+		    gtts.init(args.replaceAll("\\s\\s+", " ").trim(), "pt", false, false);
+		    url = gtts.exec();    
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+		
+        bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
+    	
+    }
+    
+    private class EventTtsHandler implements AudioLoadResultHandler
+    {
+        private final GuildMessageReceivedEvent event;
+        
+        private EventTtsHandler(GuildMessageReceivedEvent event)
+        {
+            this.event = event;
+        }
+        
+        private void loadSingle(AudioTrack track, AudioPlaylist playlist)
+        {
+            if(bot.getConfig().isTooLong(track))
+                return;
+
+            AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+            handler.addTrack(new QueuedTrack(track, event.getAuthor()));
+        }
+        
+        private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
+        {
+            int[] count = {0};
+            playlist.getTracks().stream().forEach((track) -> {
+                if(!bot.getConfig().isTooLong(track) && !track.equals(exclude))
+                {
+                    AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
+                    handler.addTrack(new QueuedTrack(track, event.getAuthor()));
+                    count[0]++;
+                }
+            });
+            return count[0];
+        }
+        
+        @Override
+        public void trackLoaded(AudioTrack track)
+        {
+            loadSingle(track, null);
+        }
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist)
+        {
+            if(playlist.getTracks().size()==1 || playlist.isSearchResult())
+            {
+                AudioTrack single = playlist.getSelectedTrack()==null ? playlist.getTracks().get(0) : playlist.getSelectedTrack();
+                loadSingle(single, null);
+            }
+            else if (playlist.getSelectedTrack()!=null)
+            {
+                AudioTrack single = playlist.getSelectedTrack();
+                loadSingle(single, playlist);
+            }
+            else
+            {
+                loadPlaylist(playlist, null);
+            }
+        }
+
+        @Override
+        public void noMatches()
+        {
+        	event.getChannel().sendMessage(FormatUtil.filter(bot.getConfig().getWarning()+" No results found for `"+event.getMessage().getContentStripped()+"`.")).queue();
+        }
+
+        @Override
+        public void loadFailed(FriendlyException throwable)
+        {
+            if(throwable.severity==Severity.COMMON)
+                event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading: "+throwable.getMessage()).queue();
+            else
+            	event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading track.").queue();
+        }
+    }
+    
 }

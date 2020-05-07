@@ -5,6 +5,7 @@ import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.commands.DJCommand;
 import com.github.skoliveira.beckytts.commands.MusicCommand;
+import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.tts.GoogleTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
 import com.jagrosh.jdautilities.command.Command;
@@ -46,12 +47,25 @@ public class TtsCmd extends MusicCommand
                     event.replyError("Only DJs can unpause the player!");
                 return;
             }
-            StringBuilder builder = new StringBuilder(event.getClient().getWarning()+" TTS Commands:\n");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speach>` - plays the provided text");
+            Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
+            if(settings.getAutoTtsMode()) {
+	            if(settings.containsAutoTtsUser(event.getMember()))
+	            {
+	            	settings.removeAutoTtsUser(event.getMember());
+	            	event.replySuccess("AutoTTS mode disable for " + event.getMember().getAsMention());
+	            }
+	            else 
+	            {
+	            	settings.addAutoTtsUser(event.getMember());
+	            	event.replySuccess("AutoTTS mode enable for " + event.getMember().getAsMention());
+	            }
+	            return;
+            }
+            StringBuilder builder = new StringBuilder(event.getClient().getWarning()+" TTS Command:\n");
+            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speach>` - plays the text to speach");
             for(Command cmd: children)
                 builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
             event.reply(builder.toString());
-            return;
         }
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">") 
                 ? event.getArgs().substring(1,event.getArgs().length()-1) 
@@ -60,9 +74,7 @@ public class TtsCmd extends MusicCommand
         GoogleTTS gtts = new GoogleTTS();
 		try {
 		    gtts.init(args.replaceAll("\\s\\s+", " ").trim(), "pt", false, false);
-		    url = gtts.exec();
-		    System.out.println(url);
-		    
+		    url = gtts.exec();   
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}

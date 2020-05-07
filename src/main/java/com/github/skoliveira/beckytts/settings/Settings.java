@@ -18,7 +18,11 @@ package com.github.skoliveira.beckytts.settings;
 import com.jagrosh.jdautilities.command.GuildSettingsProvider;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -37,6 +41,7 @@ public class Settings implements GuildSettingsProvider
     private boolean repeatMode;
     private boolean autoTtsMode;
     private String prefix;
+    private Set<Long> usersTts;
     
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean repeatMode, boolean autoTtsMode, String prefix)
     {
@@ -69,6 +74,7 @@ public class Settings implements GuildSettingsProvider
         this.repeatMode = repeatMode;
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
+        this.usersTts = new HashSet<>();
     }
     
     public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean repeatMode, boolean autoTtsMode, String prefix)
@@ -81,6 +87,7 @@ public class Settings implements GuildSettingsProvider
         this.repeatMode = repeatMode;
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
+        this.usersTts = new HashSet<>();
     }
     
     // Getters
@@ -167,4 +174,19 @@ public class Settings implements GuildSettingsProvider
         this.prefix = prefix;
         this.manager.writeSettings();
     }
+
+	public boolean addAutoTtsUser(Member member) {
+		Long userid = member == null ? null : member.getIdLong();
+		return usersTts.add(userid);
+	}
+	
+	public boolean removeAutoTtsUser(Member member) {
+		Long userid = member == null ? null : member.getIdLong();
+		return usersTts.remove(userid);
+	}
+	
+	public boolean containsAutoTtsUser(Member member) {
+		Long userid = member == null ? null : member.getIdLong();
+		return usersTts.contains(userid);
+	}
 }

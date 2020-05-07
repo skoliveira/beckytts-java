@@ -117,6 +117,7 @@ public class BeckyTTS
                         //new PauseCmd(bot),
                         //new PlaynextCmd(bot),
                         new RepeatCmd(bot),
+                        new AutoTtsCmd(bot),
                         //new SkiptoCmd(bot),
                         new StopCmd(bot),
                         new VolumeCmd(bot),
