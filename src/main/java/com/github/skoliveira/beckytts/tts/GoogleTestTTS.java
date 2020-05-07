@@ -5,7 +5,7 @@ import java.io.IOException;
 public class GoogleTestTTS {
 
 	public static void main(String[] args) throws IOException {
-		String text = "Isso � um teste";
+		String text = "Isso é um teste";
 		String url = "";
 		GoogleTTS gtts = new GoogleTTS();
 		try {

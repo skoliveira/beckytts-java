@@ -53,10 +53,10 @@ public class SkipCmd extends MusicCommand
                     .filter(m -> !m.getUser().isBot() && !m.getVoiceState().isDeafened()).count();
             String msg;
             if(handler.getVotes().contains(event.getAuthor().getId()))
-                msg = event.getClient().getWarning()+" You already voted to skip this song `[";
+                msg = event.getClient().getWarning()+" You already voted to skip this text to speach `[";
             else
             {
-                msg = event.getClient().getSuccess()+" You voted to skip the song `[";
+                msg = event.getClient().getSuccess()+" You voted to skip the text to speach `[";
                 handler.getVotes().add(event.getAuthor().getId());
             }
             int skippers = (int)event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
