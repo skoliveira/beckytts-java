@@ -175,18 +175,23 @@ public class Settings implements GuildSettingsProvider
         this.manager.writeSettings();
     }
 
-	public boolean addAutoTtsUser(Member member) {
-		Long userid = member == null ? null : member.getIdLong();
-		return usersTts.add(userid);
-	}
+    public boolean addAutoTtsUser(Member member) {
+        Long userid = member == null ? null : member.getIdLong();
+        return usersTts.add(userid);
+    }
 	
-	public boolean removeAutoTtsUser(Member member) {
-		Long userid = member == null ? null : member.getIdLong();
-		return usersTts.remove(userid);
-	}
+    public boolean removeAutoTtsUser(Member member) {
+        Long userid = member == null ? null : member.getIdLong();
+        return usersTts.remove(userid);
+    }
 	
-	public boolean containsAutoTtsUser(Member member) {
-		Long userid = member == null ? null : member.getIdLong();
-		return usersTts.contains(userid);
-	}
+    public boolean containsAutoTtsUser(Member member) {
+        Long userid = member == null ? null : member.getIdLong();
+        return usersTts.contains(userid);
+    }
+	
+    public void clearAutoTtsUsers() {
+        usersTts.clear();
+    }
+    
 }

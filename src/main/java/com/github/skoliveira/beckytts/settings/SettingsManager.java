@@ -21,6 +21,8 @@ import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Set;
+
 import net.dv8tion.jda.api.entities.Guild;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -105,4 +107,11 @@ public class SettingsManager implements GuildSettingsManager
             LoggerFactory.getLogger("Settings").warn("Failed to write to file: "+ex);
         }
     }
+
+	@Override
+	public void shutdown() {
+        this.settings.clear();
+        GuildSettingsManager.super.shutdown();
+	}
+        
 }
