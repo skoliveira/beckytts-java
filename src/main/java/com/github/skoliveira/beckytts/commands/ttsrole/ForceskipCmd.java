@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.skoliveira.beckytts.commands.dj;
+package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
-import com.github.skoliveira.beckytts.commands.DJCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
+
+import net.dv8tion.jda.api.entities.User;
 
 /**
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class SkiptoCmd extends DJCommand 
+public class ForceskipCmd extends TTSRoleCommand 
 {
-    public SkiptoCmd(Bot bot)
+    public ForceskipCmd(Bot bot)
     {
         super(bot);
-        this.name = "skipto";
-        this.help = "skips to the specified song";
-        this.arguments = "<position>";
+        this.name = "forceskip";
+        this.help = "skips the current song";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.bePlaying = true;
     }
@@ -39,24 +40,10 @@ public class SkiptoCmd extends DJCommand
     @Override
     public void doCommand(CommandEvent event) 
     {
-        int index = 0;
-        try
-        {
-            index = Integer.parseInt(event.getArgs());
-        }
-        catch(NumberFormatException e)
-        {
-            event.reply(event.getClient().getError()+" `"+event.getArgs()+"` is not a valid integer!");
-            return;
-        }
         AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-        if(index<1 || index>handler.getQueue().size())
-        {
-            event.reply(event.getClient().getError()+" Position must be a valid integer between 1 and "+handler.getQueue().size()+"!");
-            return;
-        }
-        handler.getQueue().skip(index-1);
-        event.reply(event.getClient().getSuccess()+" Skipped to **"+handler.getQueue().get(0).getTrack().getInfo().title+"**");
+        User u = event.getJDA().getUserById(handler.getRequester());
+        event.reply(event.getClient().getSuccess()+" Skipped **"+handler.getPlayer().getPlayingTrack().getInfo().title
+                +"** (requested by "+(u==null ? "someone" : "**"+u.getName()+"**")+")");
         handler.getPlayer().stopTrack();
     }
 }

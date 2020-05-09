@@ -16,10 +16,10 @@
 package com.github.skoliveira.beckytts;
 
 import com.github.skoliveira.beckytts.commands.admin.*;
-import com.github.skoliveira.beckytts.commands.dj.*;
+import com.github.skoliveira.beckytts.commands.audio.*;
 import com.github.skoliveira.beckytts.commands.general.*;
-import com.github.skoliveira.beckytts.commands.music.*;
 import com.github.skoliveira.beckytts.commands.owner.*;
+import com.github.skoliveira.beckytts.commands.ttsrole.*;
 import com.github.skoliveira.beckytts.entities.Prompt;
 import com.github.skoliveira.beckytts.gui.GUI;
 import com.github.skoliveira.beckytts.settings.SettingsManager;
@@ -46,8 +46,8 @@ public class BeckyTTS
     public final static String PAUSE_EMOJI = "\u23F8"; // ⏸
     public final static String STOP_EMOJI  = "\u23F9"; // ⏹
     public final static Permission[] RECOMMENDED_PERMS = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,
-                                Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
-                                Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
+            Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
+            Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
     /**
      * @param args the command line arguments
      */
@@ -55,11 +55,11 @@ public class BeckyTTS
     {
         // startup log
         Logger log = LoggerFactory.getLogger("Startup");
-        
+
         // create prompt to handle startup
         Prompt prompt = new Prompt("BeckyTTS", "Switching to nogui mode. You can manually start in nogui mode by including the -Dnogui=true flag.", 
                 "true".equalsIgnoreCase(System.getProperty("nogui", "false")));
-        
+
         // check deprecated nogui mode (new way of setting it is -Dnogui=true)
         for(String arg: args)
             if("-nogui".equalsIgnoreCase(arg))
@@ -68,28 +68,28 @@ public class BeckyTTS
                         + "Please use the -Dnogui=true flag before the name of the jar. Example: java -jar -Dnogui=true BeckyTTS.jar");
                 break;
             }
-        
+
         // get and check latest version
         String version = OtherUtil.checkVersion(prompt);
-        
+
         // load config
         BotConfig config = new BotConfig(prompt);
         config.load();
         if(!config.isValid())
             return;
-        
+
         // set up the listener
         EventWaiter waiter = new EventWaiter();
         SettingsManager settings = new SettingsManager();
         Bot bot = new Bot(waiter, config, settings);
-        
+
         AboutCommand aboutCommand = new AboutCommand(Color.BLUE.brighter(),
-                                "a music bot that is [easy to host yourself!](https://github.com/skoliveira/BeckyTTS) (v. "+version+")",
-                                new String[]{"High-quality music playback", "FairQueue™ Technology", "Easy to host yourself"},
-                                RECOMMENDED_PERMS);
+                "a music bot that is [easy to host yourself!](https://github.com/skoliveira/BeckyTTS) (v. "+version+")",
+                new String[]{"High-quality music playback", "FairQueue™ Technology", "Easy to host yourself"},
+                RECOMMENDED_PERMS);
         aboutCommand.setIsAuthor(false);
         aboutCommand.setReplacementCharacter("\uD83C\uDFB6"); // 🎶
-        
+
         // set up the command client
         CommandClientBuilder cb = new CommandClientBuilder()
                 .setPrefix(config.getPrefix())
@@ -102,38 +102,28 @@ public class BeckyTTS
                 .addCommands(aboutCommand,
                         new PingCommand(),
                         new SettingsCmd(bot),
-                        
-                        //new PlayCmd(bot),
+
                         new TtsCmd(bot),
-                        //new RemoveCmd(bot),
-                        //new SearchCmd(bot),
-                        //new SCSearchCmd(bot),
-                        //new ShuffleCmd(bot),
                         new SkipCmd(bot),
 
-                        //new ForceRemoveCmd(bot),
                         new ForceskipCmd(bot),
-                        //new MoveTrackCmd(bot),
-                        //new PauseCmd(bot),
-                        //new PlaynextCmd(bot),
-                        new RepeatCmd(bot),
-                        new AutoTtsCmd(bot),
-                        //new SkiptoCmd(bot),
+
                         new StopCmd(bot),
                         new VolumeCmd(bot),
-                        
+
+                        new AutoTtsCmd(bot),
                         new PrefixCmd(bot),
-                        new SetdjCmd(bot),
+                        new SetroleCmd(bot),
                         new SettcCmd(bot),
                         new SetvcCmd(bot),
-                        
+
                         new DebugCmd(bot),
                         new SetavatarCmd(bot),
                         new SetgameCmd(bot),
                         new SetnameCmd(bot),
                         new SetstatusCmd(bot),
                         new ShutdownCmd(bot)
-                );
+                        );
         if(config.useEval())
             cb.addCommand(new EvalCmd(bot));
         boolean noactivity = false;
@@ -148,7 +138,7 @@ public class BeckyTTS
         }
         else
             cb.setActivity(config.getActivity());
-        
+
         if(!prompt.isNoGUI())
         {
             try 
@@ -164,9 +154,9 @@ public class BeckyTTS
                         + "window, please run in nogui mode using the -Dnogui=true flag.");
             }
         }
-        
+
         log.info("Loaded config from " + config.getConfigLocation());
-        
+
         // attempt to log in and start
         try
         {
@@ -174,7 +164,7 @@ public class BeckyTTS
                     .setAudioSendFactory(new NativeAudioSendFactory())
                     .setActivity(noactivity ? null : Activity.playing("loading..."))
                     .setStatus(config.getStatus()==OnlineStatus.INVISIBLE || config.getStatus()==OnlineStatus.OFFLINE
-                            ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
+                    ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
                     .addEventListeners(cb.build(), waiter, new Listener(bot))
                     .setBulkDeleteSplittingEnabled(true)
                     .build();

@@ -48,16 +48,17 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
  */
 public class Listener extends ListenerAdapter
 {
-	private final Bot bot;
-    
+    private final Bot bot;
+
     public Listener(Bot bot)
     {
         this.bot = bot;
     }
-    
+
     @Override
     public void onReady(ReadyEvent event) 
     {
+        bot.getSettingsManager().init();
         if(event.getJDA().getGuilds().isEmpty())
         {
             Logger log = LoggerFactory.getLogger("BeckyTTS");
@@ -91,15 +92,15 @@ public class Listener extends ListenerAdapter
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
-    	Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
-    	if(!settings.getAutoTtsMode())
-    		return;
-    	
-    	TextChannel tchannel = settings.getTextChannel(event.getGuild());    	
-    	if(tchannel!=null && !event.getChannel().equals(tchannel))
+        Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
+        if(!settings.getAutoTtsMode())
             return;
-        
-    	VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
+
+        TextChannel tchannel = settings.getTextChannel(event.getGuild());    	
+        if(tchannel!=null && !event.getChannel().equals(tchannel))
+            return;
+
+        VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
         if(current==null)
             current = settings.getVoiceChannel(event.getGuild());
         GuildVoiceState userState = event.getMember().getVoiceState();
@@ -107,16 +108,32 @@ public class Listener extends ListenerAdapter
             return;
 
         VoiceChannel afkChannel = event.getGuild().getAfkChannel();
-        if(afkChannel != null && afkChannel.equals(userState.getChannel()))
+        if(afkChannel!=null && afkChannel.equals(userState.getChannel()))
             return;
-        
+
         if(!settings.containsAutoTtsUser(event.getMember()))
-        	return;
-        
+            return;
+
+        String message = event.getMessage().getContentStripped();
+
+        // remove links
+        String regexUrl = "((http:\\/\\/|https:\\/\\/)?(www.)?(([a-zA-Z0-9-]){2,}\\.){1,4}([a-zA-Z]){2,6}(\\/([a-zA-Z-_\\/\\.0-9#:?=&;,]*)?)?)";
+        message = message.replaceAll(regexUrl, "");
+
+        // remove emojis
+        message = message.replaceAll(":\\w+?:", "");
+
+        // remove extra white spaces
+        message = message.replaceAll("\\s\\s+", " ").trim();
+
+        if(message.isBlank())
+            return;
+
         if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())
         {
             try 
             {
+                event.getGuild().getAudioManager().setSelfDeafened(true);
                 event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
             }
             catch(PermissionException ex) 
@@ -125,31 +142,28 @@ public class Listener extends ListenerAdapter
             }
         }
 
-        String args = event.getMessage().getContentStripped().startsWith("<") && event.getMessage().getContentStripped().endsWith(">") 
-                ? event.getMessage().getContentStripped().substring(1,event.getMessage().getContentStripped().length()-1) 
-                : event.getMessage().getContentStripped().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getMessage().getContentStripped();
         String url = "";        
         GoogleTTS gtts = new GoogleTTS();
-		try {
-		    gtts.init(args.replaceAll("\\s\\s+", " ").trim(), "pt", false, false);
-		    url = gtts.exec();    
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-		
+        try {
+            gtts.init(message, "pt", false, false);
+            url = gtts.exec();    
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-    	
+
     }
-    
+
     private class EventTtsHandler implements AudioLoadResultHandler
     {
         private final GuildMessageReceivedEvent event;
-        
+
         private EventTtsHandler(GuildMessageReceivedEvent event)
         {
             this.event = event;
         }
-        
+
         private void loadSingle(AudioTrack track, AudioPlaylist playlist)
         {
             if(bot.getConfig().isTooLong(track))
@@ -158,7 +172,7 @@ public class Listener extends ListenerAdapter
             AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
             handler.addTrack(new QueuedTrack(track, event.getAuthor()));
         }
-        
+
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
         {
             int[] count = {0};
@@ -172,7 +186,7 @@ public class Listener extends ListenerAdapter
             });
             return count[0];
         }
-        
+
         @Override
         public void trackLoaded(AudioTrack track)
         {
@@ -201,7 +215,7 @@ public class Listener extends ListenerAdapter
         @Override
         public void noMatches()
         {
-        	event.getChannel().sendMessage(FormatUtil.filter(bot.getConfig().getWarning()+" No results found for `"+event.getMessage().getContentStripped()+"`.")).queue();
+            event.getChannel().sendMessage(FormatUtil.filter(bot.getConfig().getWarning()+" No results found for `"+event.getMessage().getContentStripped()+"`.")).queue();
         }
 
         @Override
@@ -210,8 +224,8 @@ public class Listener extends ListenerAdapter
             if(throwable.severity==Severity.COMMON)
                 event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading: "+throwable.getMessage()).queue();
             else
-            	event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading track.").queue();
+                event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading track.").queue();
         }
     }
-    
+
 }

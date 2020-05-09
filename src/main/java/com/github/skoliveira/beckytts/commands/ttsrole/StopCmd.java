@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 John Grosh <john.a.grosh@gmail.com>.
+ * Copyright 2018 John Grosh <john.a.grosh@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.skoliveira.beckytts.commands.dj;
+package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
-import com.github.skoliveira.beckytts.commands.DJCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
-
-import net.dv8tion.jda.api.entities.User;
 
 /**
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class ForceskipCmd extends DJCommand 
+public class StopCmd extends TTSRoleCommand 
 {
-    public ForceskipCmd(Bot bot)
+    public StopCmd(Bot bot)
     {
         super(bot);
-        this.name = "forceskip";
-        this.help = "skips the current song";
+        this.name = "stop";
+        this.help = "stops and leaving the voice channel";
         this.aliases = bot.getConfig().getAliases(this.name);
-        this.bePlaying = true;
+        this.bePlaying = false;
     }
 
     @Override
     public void doCommand(CommandEvent event) 
     {
         AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-        User u = event.getJDA().getUserById(handler.getRequester());
-        event.reply(event.getClient().getSuccess()+" Skipped **"+handler.getPlayer().getPlayingTrack().getInfo().title
-                +"** (requested by "+(u==null ? "someone" : "**"+u.getName()+"**")+")");
-        handler.getPlayer().stopTrack();
+        handler.stopAndClear();
+        event.getGuild().getAudioManager().closeAudioConnection();
+        event.reply(event.getClient().getSuccess()+" No problem, I am leaving already...");
     }
 }

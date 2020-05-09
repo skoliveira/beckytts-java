@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.skoliveira.beckytts.commands.dj;
+package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
-import com.github.skoliveira.beckytts.commands.DJCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -26,7 +26,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class VolumeCmd extends DJCommand
+public class VolumeCmd extends TTSRoleCommand
 {
     public VolumeCmd(Bot bot)
     {

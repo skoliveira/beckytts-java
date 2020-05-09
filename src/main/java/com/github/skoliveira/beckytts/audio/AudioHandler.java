@@ -40,11 +40,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
 {
     private final FairQueue<QueuedTrack> queue = new FairQueue<>();
     private final Set<String> votes = new HashSet<>();
-    
+
     private final PlayerManager manager;
     private final AudioPlayer audioPlayer;
     private final long guildId;
-    
+
     private AudioFrame lastFrame;
 
     protected AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player)
@@ -67,7 +67,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             return 0;
         }
     }
-    
+
     public int addTrack(QueuedTrack qtrack)
     {
         if(audioPlayer.getPlayingTrack()==null)
@@ -78,53 +78,48 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         else
             return queue.add(qtrack);
     }
-    
+
     public FairQueue<QueuedTrack> getQueue()
     {
         return queue;
     }
-    
+
     public void stopAndClear()
     {
         queue.clear();
         audioPlayer.stopTrack();
         //current = null;
     }
-    
+
     public boolean isMusicPlaying(JDA jda)
     {
         return guild(jda).getSelfMember().getVoiceState().inVoiceChannel() && audioPlayer.getPlayingTrack()!=null;
     }
-    
+
     public Set<String> getVotes()
     {
         return votes;
     }
-    
+
     public AudioPlayer getPlayer()
     {
         return audioPlayer;
     }
-    
+
     public long getRequester()
     {
         if(audioPlayer.getPlayingTrack()==null || audioPlayer.getPlayingTrack().getUserData(Long.class)==null)
             return 0;
         return audioPlayer.getPlayingTrack().getUserData(Long.class);
     }
-    
+
     // Audio Events
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) 
     {
-        // if the track ended normally, and we're in repeat mode, re-add it to the queue
-        if(endReason==AudioTrackEndReason.FINISHED && manager.getBot().getSettingsManager().getSettings(guildId).getRepeatMode())
-        {
-            queue.add(new QueuedTrack(track.makeClone(), track.getUserData(Long.class)==null ? 0L : track.getUserData(Long.class)));
-        }
         if(queue.isEmpty())
         {
-        	if(!manager.getBot().getConfig().getStay())
+            if(!manager.getBot().getConfig().getStay())
                 manager.getBot().closeAudioConnection(guildId);
             // unpause, in the case when the player was paused and the track has been skipped.
             // this is to prevent the player being paused next time it's being used.
@@ -153,13 +148,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
             if(title==null || title.equals("Unknown Title"))
                 title = track.getInfo().uri;
             return "**"+title+"** ["+(userid==0 ? "autoplay" : "<@"+userid+">")+"]"
-                    + "\n" + (audioPlayer.isPaused() ? BeckyTTS.PAUSE_EMOJI : BeckyTTS.PLAY_EMOJI) + " "
-                    + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
+            + "\n" + (audioPlayer.isPaused() ? BeckyTTS.PAUSE_EMOJI : BeckyTTS.PLAY_EMOJI) + " "
+            + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
+            + FormatUtil.volumeIcon(audioPlayer.getVolume());
         }
         else return "No music playing " + BeckyTTS.STOP_EMOJI + " " + FormatUtil.volumeIcon(audioPlayer.getVolume());
     }
-    
+
     // Audio Send Handler methods
     @Override
     public boolean canProvide() 
@@ -179,7 +174,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     {
         return true;
     }
-    
+
     // Private methods
     private Guild guild(JDA jda)
     {

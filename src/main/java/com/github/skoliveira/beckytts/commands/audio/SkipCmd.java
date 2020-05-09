@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.skoliveira.beckytts.commands.music;
+package com.github.skoliveira.beckytts.commands.audio;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
-import com.github.skoliveira.beckytts.commands.MusicCommand;
+import com.github.skoliveira.beckytts.commands.AudioCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 import net.dv8tion.jda.api.entities.User;
@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.entities.User;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public class SkipCmd extends MusicCommand 
+public class SkipCmd extends AudioCommand 
 {
     public SkipCmd(Bot bot)
     {

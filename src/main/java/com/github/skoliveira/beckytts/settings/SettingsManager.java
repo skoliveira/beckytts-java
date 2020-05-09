@@ -15,48 +15,32 @@
  */
 package com.github.skoliveira.beckytts.settings;
 
-import com.github.skoliveira.beckytts.utils.OtherUtil;
-import com.jagrosh.jdautilities.command.GuildSettingsManager;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.Set;
 
-import net.dv8tion.jda.api.entities.Guild;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
+
+import com.github.skoliveira.beckytts.utils.OtherUtil;
+import com.jagrosh.jdautilities.command.GuildSettingsManager;
+
+import net.dv8tion.jda.api.entities.Guild;
 
 /**
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class SettingsManager implements GuildSettingsManager
+public class SettingsManager implements GuildSettingsManager<Object>
 {
     private final HashMap<Long,Settings> settings;
 
     public SettingsManager()
     {
         this.settings = new HashMap<>();
-        try {
-            JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath("serversettings.json"))));
-            loadedSettings.keySet().forEach((id) -> {
-                JSONObject o = loadedSettings.getJSONObject(id);
-                settings.put(Long.parseLong(id), new Settings(this,
-                        o.has("text_channel_id") ? o.getString("text_channel_id") : null,
-                        o.has("voice_channel_id")? o.getString("voice_channel_id"): null,
-                        o.has("dj_role_id")      ? o.getString("dj_role_id")      : null,
-                        o.has("volume")          ? o.getInt("volume")             : 100,
-                        o.has("repeat")          ? o.getBoolean("repeat")         : false,
-                        o.has("autotts")         ? o.getBoolean("autotts")        : false,
-                        o.has("prefix")          ? o.getString("prefix")          : null));
-            });
-        } catch(IOException | JSONException e) {
-            LoggerFactory.getLogger("Settings").warn("Failed to load server settings (this is normal if no settings have been set yet): "+e);
-        }
     }
-    
+
     /**
      * Gets non-null settings for a Guild
      * 
@@ -66,19 +50,36 @@ public class SettingsManager implements GuildSettingsManager
     @Override
     public Settings getSettings(Guild guild)
     {
-        return getSettings(guild.getIdLong());
+        Long guildId = guild.getIdLong();
+        return settings.computeIfAbsent(guildId, id -> createDefaultSettings(guild));
     }
-    
-    public Settings getSettings(long guildId)
+
+    private Settings createDefaultSettings(Guild guild)
     {
-        return settings.computeIfAbsent(guildId, id -> createDefaultSettings());
+        long roleId = guild.getRolesByName("@everyone", true).get(0).getIdLong();
+        return new Settings(this, 0, 0, roleId, 100, false, null);
     }
-    
-    private Settings createDefaultSettings()
-    {
-        return new Settings(this, 0, 0, 0, 100, false, false, null);
+
+    @Override
+    public void init() {
+        try {
+            JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath("serversettings.json"))));
+            loadedSettings.keySet().forEach((id) -> {
+                JSONObject o = loadedSettings.getJSONObject(id);
+                settings.put(Long.parseLong(id), new Settings(this,
+                        o.has("text_channel_id") ? o.getString("text_channel_id") : null,
+                        o.has("voice_channel_id")? o.getString("voice_channel_id"): null,
+                        o.has("role_id")         ? o.getString("role_id")         : null,
+                        o.has("volume")          ? o.getInt("volume")             : 100,
+                        o.has("autotts")         ? o.getBoolean("autotts")        : false,
+                        o.has("prefix")          ? o.getString("prefix")          : null));
+            });
+        } catch(IOException | JSONException e) {
+            LoggerFactory.getLogger("Settings").warn("Failed to load server settings (this is normal if no settings have been set yet): "+e);
+        }
+        GuildSettingsManager.super.init();
     }
-    
+
     protected void writeSettings()
     {
         JSONObject obj = new JSONObject();
@@ -90,11 +91,9 @@ public class SettingsManager implements GuildSettingsManager
             if(s.voiceId!=0)
                 o.put("voice_channel_id", Long.toString(s.voiceId));
             if(s.roleId!=0)
-                o.put("dj_role_id", Long.toString(s.roleId));
+                o.put("role_id", Long.toString(s.roleId));
             if(s.getVolume()!=100)
                 o.put("volume",s.getVolume());
-            if(s.getRepeatMode())
-                o.put("repeat", true);
             if(s.getAutoTtsMode())
                 o.put("autotts", true);
             if(s.getPrefix() != null)
@@ -108,10 +107,11 @@ public class SettingsManager implements GuildSettingsManager
         }
     }
 
-	@Override
-	public void shutdown() {
+    @Override
+    public void shutdown() {
+        this.settings.forEach((l,s) -> s.clearAutoTtsUsers());
         this.settings.clear();
         GuildSettingsManager.super.shutdown();
-	}
-        
+    }
+
 }

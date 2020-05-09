@@ -30,13 +30,13 @@ import net.dv8tion.jda.api.exceptions.PermissionException;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
-public abstract class MusicCommand extends Command 
+public abstract class AudioCommand extends Command 
 {
     protected final Bot bot;
     protected boolean bePlaying;
     protected boolean beListening;
     
-    public MusicCommand(Bot bot)
+    public AudioCommand(Bot bot)
     {
         this.bot = bot;
         this.guildOnly = true;
@@ -87,6 +87,7 @@ public abstract class MusicCommand extends Command
                 try 
                 {
                     event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
+                    event.getGuild().getAudioManager().setSelfDeafened(true);
                 }
                 catch(PermissionException ex) 
                 {

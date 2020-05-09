@@ -1,10 +1,9 @@
-package com.github.skoliveira.beckytts.commands.music;
+package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
-import com.github.skoliveira.beckytts.commands.DJCommand;
-import com.github.skoliveira.beckytts.commands.MusicCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.tts.GoogleTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
@@ -16,7 +15,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-public class TtsCmd extends MusicCommand
+public class TtsCmd extends TTSRoleCommand
 {   
     
     public TtsCmd(Bot bot)
@@ -35,29 +34,17 @@ public class TtsCmd extends MusicCommand
     {
         if(event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
-            AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-            if(handler.getPlayer().getPlayingTrack()!=null && handler.getPlayer().isPaused())
-            {
-                if(DJCommand.checkDJPermission(event))
-                {
-                    handler.getPlayer().setPaused(false);
-                    event.replySuccess("Resumed **"+handler.getPlayer().getPlayingTrack().getInfo().title+"**.");
-                }
-                else
-                    event.replyError("Only DJs can unpause the player!");
-                return;
-            }
             Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
             if(settings.getAutoTtsMode()) {
 	            if(settings.containsAutoTtsUser(event.getMember()))
 	            {
 	            	settings.removeAutoTtsUser(event.getMember());
-	            	event.replySuccess("AutoTTS mode disable for " + event.getMember().getAsMention());
+	            	event.replySuccess(event.getMember().getAsMention() + " is no longer an autotts user");
 	            }
 	            else 
 	            {
 	            	settings.addAutoTtsUser(event.getMember());
-	            	event.replySuccess("AutoTTS mode enable for " + event.getMember().getAsMention());
+	            	event.replySuccess(event.getMember().getAsMention() + " is now an autotts user");
 	            }
 	            return;
             }

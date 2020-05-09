@@ -1,23 +1,23 @@
-package com.github.skoliveira.beckytts.commands.dj;
+package com.github.skoliveira.beckytts.commands.admin;
 
 import com.github.skoliveira.beckytts.Bot;
-import com.github.skoliveira.beckytts.commands.DJCommand;
+import com.github.skoliveira.beckytts.commands.AdminCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
-public class AutoTtsCmd extends DJCommand
+@SuppressWarnings("unused")
+public class AutoTtsCmd extends AdminCommand
 {
     public AutoTtsCmd(Bot bot)
     {
-        super(bot);
         this.name = "autotts";
-        this.help = "switch autotts mode";
+        this.help = "mode that enable/disable tts for all your chatting";
         this.arguments = "[on|off]";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = true;
     }
-    
-    // override musiccommand's execute because we don't actually care where this is used
+
     @Override
     protected void execute(CommandEvent event) 
     {
@@ -27,11 +27,15 @@ public class AutoTtsCmd extends DJCommand
         {
             value = !settings.getAutoTtsMode();
         }
-        else if(event.getArgs().equalsIgnoreCase("true") || event.getArgs().equalsIgnoreCase("on"))
+        else if(event.getArgs().equalsIgnoreCase("true")
+                || event.getArgs().equalsIgnoreCase("on")
+                || event.getArgs().equalsIgnoreCase("enable"))
         {
             value = true;
         }
-        else if(event.getArgs().equalsIgnoreCase("false") || event.getArgs().equalsIgnoreCase("off"))
+        else if(event.getArgs().equalsIgnoreCase("false")
+                || event.getArgs().equalsIgnoreCase("off")
+                || event.getArgs().equalsIgnoreCase("disable"))
         {
             value = false;
         }
@@ -41,9 +45,6 @@ public class AutoTtsCmd extends DJCommand
             return;
         }
         settings.setAutoTtsMode(value);
-        event.replySuccess("AutoTTS mode is now `"+(value ? "ON" : "OFF")+"`");
+        event.replySuccess("AutoTTS mode is now `"+(value ? "ENABLE" : "DISABLE")+"` on *"+event.getGuild().getName()+"*");
     }
-
-    @Override
-    public void doCommand(CommandEvent event) { /* Intentionally Empty */ }
 }

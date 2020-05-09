@@ -40,11 +40,11 @@ public class Bot
     private final BotConfig config;
     private final SettingsManager settings;
     private final PlayerManager players;
-    
+
     private boolean shuttingDown = false;
     private JDA jda;
     private GUI gui;
-    
+
     public Bot(EventWaiter waiter, BotConfig config, SettingsManager settings)
     {
         this.waiter = waiter;
@@ -54,47 +54,47 @@ public class Bot
         this.players = new PlayerManager(this);
         this.players.init();
     }
-    
+
     public BotConfig getConfig()
     {
         return config;
     }
-    
+
     public SettingsManager getSettingsManager()
     {
         return settings;
     }
-    
+
     public EventWaiter getWaiter()
     {
         return waiter;
     }
-    
+
     public ScheduledExecutorService getThreadpool()
     {
         return threadpool;
     }
-    
+
     public PlayerManager getPlayerManager()
     {
         return players;
     }
-    
+
     public JDA getJDA()
     {
         return jda;
     }
-    
+
     public void closeAudioConnection(long guildId)
     {
         Guild guild = jda.getGuildById(guildId);
         if(guild!=null)
             threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
     }
-    
+
     public void resetActivity()
     {
-    	Activity activity = config.getActivity()==null || config.getActivity().getName().equalsIgnoreCase("none") ? null : config.getActivity();
+        Activity activity = config.getActivity()==null || config.getActivity().getName().equalsIgnoreCase("none") ? null : config.getActivity();
         if(!Objects.equals(jda.getPresence().getActivity(), activity))
             jda.getPresence().setActivity(activity);
     }
@@ -128,7 +128,7 @@ public class Bot
     {
         this.jda = jda;
     }
-    
+
     public void setGUI(GUI gui)
     {
         this.gui = gui;

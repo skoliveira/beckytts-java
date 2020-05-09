@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 public class SettingsCmd extends Command 
 {
     private final static String EMOJI = "\uD83C\uDFA7"; // 🎧
-    
+
     public SettingsCmd(Bot bot)
     {
         this.name = "settings";
@@ -42,7 +42,7 @@ public class SettingsCmd extends Command
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = true;
     }
-    
+
     @Override
     protected void execute(CommandEvent event) 
     {
@@ -58,9 +58,8 @@ public class SettingsCmd extends Command
                 .setColor(event.getSelfMember().getColor())
                 .setDescription("Text Channel: " + (tchan == null ? "Any" : "**#" + tchan.getName() + "**")
                         + "\nVoice Channel: " + (vchan == null ? "Any" : "**" + vchan.getName() + "**")
-                        + "\nDJ Role: " + (role == null ? "None" : "**" + role.getName() + "**")
+                        + "\nRole: " + (role == null ? "None" : "**" + role.getName() + "**")
                         + "\nCustom Prefix: " + (s.getPrefix() == null ? "None" : "`" + s.getPrefix() + "`")
-                        + "\nRepeat Mode: **" + (s.getRepeatMode() ? "On" : "Off") + "**"
                         + "\nAutoTTS Mode: **" + (s.getAutoTtsMode() ? "On" : "Off") + "**"
                         )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
@@ -68,5 +67,5 @@ public class SettingsCmd extends Command
                         + " audio connections", null);
         event.getChannel().sendMessage(builder.setEmbed(ebuilder.build()).build()).queue();
     }
-    
+
 }
