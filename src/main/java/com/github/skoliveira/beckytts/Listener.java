@@ -15,6 +15,7 @@
  */
 package com.github.skoliveira.beckytts;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -23,8 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.settings.Settings;
-import com.github.skoliveira.beckytts.tts.GoogleTTS;
-import com.github.skoliveira.beckytts.utils.FormatUtil;
+import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -33,11 +33,13 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -49,10 +51,12 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
+    protected static long requests;
 
     public Listener(Bot bot)
     {
         this.bot = bot;
+        Listener.requests = 0;
     }
 
     @Override
@@ -85,9 +89,27 @@ public class Listener extends ListenerAdapter
     }
 
     @Override
-    public void onShutdown(ShutdownEvent event) 
-    {
-        bot.shutdown();
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        Member me = event.getGuild().getSelfMember();
+        List<Member> listJoined = event.getChannelJoined().getMembers();
+        List<Member> listLeft = event.getChannelLeft().getMembers();
+        if((listLeft.size()==1 && listLeft.contains(me)) ||
+                (listJoined.size()==1 && listJoined.contains(me))) {
+            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            handler.stopAndClear();
+            event.getGuild().getAudioManager().closeAudioConnection();
+        }
+    }
+
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        Member me = event.getGuild().getSelfMember();
+        List<Member> list = event.getChannelLeft().getMembers();
+        if(list.size()==1 && list.contains(me)) {
+            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            handler.stopAndClear();
+            event.getGuild().getAudioManager().closeAudioConnection();
+        }
     }
 
     @Override
@@ -124,7 +146,7 @@ public class Listener extends ListenerAdapter
         message = message.replaceAll(":\\S+:", "");
 
         // remove extra white spaces
-        message = message.replaceAll("\\s\\s+", " ").trim();
+        message = message.replaceAll("(?: |\\t)(?: |\\t)+(?!$)", " ");
 
         if(message.isBlank())
             return;
@@ -142,17 +164,12 @@ public class Listener extends ListenerAdapter
             }
         }
 
-        String url = "";        
-        GoogleTTS gtts = new GoogleTTS();
-        try {
-            gtts.init(message, "pt", false, false);
-            url = gtts.exec();    
-        } catch (Exception e) {
-            e.printStackTrace();
+        gTTS tts = new gTTS();
+        String[] urls = tts.getTtsUrls(message);
+        for(String url : urls) {
+            bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
+            Listener.requests++;
         }
-
-        bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-
     }
 
     private class EventTtsHandler implements AudioLoadResultHandler
@@ -215,16 +232,20 @@ public class Listener extends ListenerAdapter
         @Override
         public void noMatches()
         {
-            event.getChannel().sendMessage(FormatUtil.filter(bot.getConfig().getWarning()+" No results found for `"+event.getMessage().getContentStripped()+"`.")).queue();
+            event.getChannel().sendMessage(bot.getConfig().getWarning()+" No results found for `"+event.getMessage().getContentStripped()+"`.").queue();
         }
 
         @Override
         public void loadFailed(FriendlyException throwable)
         {
-            if(throwable.severity==Severity.COMMON)
-                event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading: "+throwable.getMessage()).queue();
-            else
+            if(throwable.severity==Severity.COMMON) {
+                if(throwable.getMessage().contains("URL"))
+                    event.getChannel().sendMessage(bot.getConfig().getError()+" Error request: "+Listener.requests+". TTS service unavailable.").queue();
+                else
+                    event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading: "+throwable.getMessage()).queue();
+            } else {
                 event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading track.").queue();
+            }
         }
     }
 

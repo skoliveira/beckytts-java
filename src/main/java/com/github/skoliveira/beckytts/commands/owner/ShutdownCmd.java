@@ -16,6 +16,7 @@
 package com.github.skoliveira.beckytts.commands.owner;
 
 import com.github.skoliveira.beckytts.Bot;
+import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.commands.OwnerCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
@@ -26,7 +27,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 public class ShutdownCmd extends OwnerCommand
 {
     private final Bot bot;
-    
+
     public ShutdownCmd(Bot bot)
     {
         this.bot = bot;
@@ -35,7 +36,7 @@ public class ShutdownCmd extends OwnerCommand
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = false;
     }
-    
+
     @Override
     protected void execute(CommandEvent event)
     {

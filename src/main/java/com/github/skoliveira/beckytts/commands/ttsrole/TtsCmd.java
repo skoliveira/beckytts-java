@@ -22,8 +22,8 @@ public class TtsCmd extends TTSRoleCommand
     {
         super(bot);
         this.name = "tts";
-        this.arguments = "<text to speach>";
-        this.help = "plays the text to speach";
+        this.arguments = "<text to speech>";
+        this.help = "plays the text to speech";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.beListening = true;
         this.bePlaying = false;
@@ -49,7 +49,7 @@ public class TtsCmd extends TTSRoleCommand
 	            return;
             }
             StringBuilder builder = new StringBuilder(event.getClient().getWarning()+" TTS Command:\n");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speach>` - plays the text to speach");
+            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speech>` - plays the text to speech");
             for(Command cmd: children)
                 builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
             event.reply(builder.toString());

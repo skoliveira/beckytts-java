@@ -28,6 +28,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
+import okhttp3.OkHttpClient;
 
 /**
  *
@@ -117,7 +118,9 @@ public class Bot
                     ah.getPlayer().destroy();
                 }
             });
-            jda.shutdown();
+            OkHttpClient client = jda.getHttpClient();
+            client.connectionPool().evictAll();
+            client.dispatcher().executorService().shutdown();
         }
         if(gui!=null)
             gui.dispose();

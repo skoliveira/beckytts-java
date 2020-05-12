@@ -41,7 +41,7 @@ public class Settings implements GuildSettingsProvider
     private int volume;
     private boolean autoTtsMode;
     private String prefix;
-    private Set<Long> usersTts;
+    private final Set<Long> usersTts;
 
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean autoTtsMode, String prefix)
     {
@@ -177,8 +177,8 @@ public class Settings implements GuildSettingsProvider
         return usersTts.contains(userid);
     }
 
-//    public void clearAutoTtsUsers() {
-//        usersTts.clear();
-//    }
+    public void clearAutoTtsUsers() {
+        usersTts.clear();
+    }
 
 }
