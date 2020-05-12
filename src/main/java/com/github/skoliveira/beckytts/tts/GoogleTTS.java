@@ -131,7 +131,7 @@ public class GoogleTTS {
             String part = this.text_parts.get(idx);
             url = GOOGLE_TTS_URL + "?"
                     + "ie=" + "UTF-8"
-                    + "&" + "q=" + part
+                    + "&" + "q=" + formatString(part)
                     + "&" + "tl=" + this.lang
                     + "&" + "ttsspeed=" + this.speed
                     + "&" + "total=" + this.text_parts.size()
@@ -140,7 +140,25 @@ public class GoogleTTS {
                     + "&" + "textlen=" + part.length()
                     + "&" + "tk=" + this.token.calculate_token(part, null);
         }
-        return url.replaceAll(" ", "%20");
+        return url;
+    }
+    
+    private String formatString(String str) {
+        str = str.replaceAll("%", "%25");
+        str = str.replaceAll(" ", "%20");
+        str = str.replaceAll("\"","%22");
+        str = str.replaceAll("#", "%23");
+        str = str.replaceAll("&", "%26");
+        str = str.replaceAll("\\+", "%2B");
+        str = str.replaceAll("<", "%3C");
+        str = str.replaceAll(">", "%3E");
+        str = str.replaceAll("\\\\", "%5C");
+        str = str.replaceAll("\\^", "%5E");
+        str = str.replaceAll("`", "%60");
+        str = str.replaceAll("\\{", "%7B");
+        str = str.replaceAll("\\|", "%7C");
+        str = str.replaceAll("\\}", "%7D");
+        return str;
     }
 
     private List<String> _tokenize(String text, int max_size) {

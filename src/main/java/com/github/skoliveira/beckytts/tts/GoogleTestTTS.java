@@ -5,8 +5,8 @@ import java.io.IOException;
 public class GoogleTestTTS {
 
 	public static void main(String[] args) throws IOException {
-	    /*
-		String text = "Isso é um teste";
+		String text = "teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste%20teste";
+		System.out.println(text.length());
 		String url = "";
 		GoogleTTS gtts = new GoogleTTS();
 		try {
@@ -17,9 +17,6 @@ public class GoogleTestTTS {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
-		*/
-	    String test = "docs.google.com/document/u/0/";
-	    String regexUrl = "((http:\\/\\/|https:\\/\\/)?(www.)?(([a-zA-Z0-9-]){2,}\\.){1,4}([a-zA-Z]){2,6}(\\/([a-zA-Z-_\\/\\.0-9#:?=&;,]*)?)?)";
-	    System.out.print(test.replaceAll(regexUrl, "true")); 
+		
 	}
 }

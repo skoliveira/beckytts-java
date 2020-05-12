@@ -121,7 +121,7 @@ public class Listener extends ListenerAdapter
         message = message.replaceAll(regexUrl, "");
 
         // remove emojis
-        message = message.replaceAll(":\\w+?:", "");
+        message = message.replaceAll(":\\S+:", "");
 
         // remove extra white spaces
         message = message.replaceAll("\\s\\s+", " ").trim();

@@ -109,7 +109,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
 
     @Override
     public void shutdown() {
-        this.settings.forEach((l,s) -> s.clearAutoTtsUsers());
+        //this.settings.forEach((l,s) -> s.clearAutoTtsUsers());
         this.settings.clear();
         GuildSettingsManager.super.shutdown();
     }

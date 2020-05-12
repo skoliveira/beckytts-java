@@ -173,7 +173,7 @@ public class OtherUtil
         if(BeckyTTS.class.getPackage()!=null && BeckyTTS.class.getPackage().getImplementationVersion()!=null)
             return BeckyTTS.class.getPackage().getImplementationVersion();
         else
-            return "0.0.1";
+            return "UNKNOWN";
     }
     
     public static String getLatestVersion()
@@ -181,7 +181,7 @@ public class OtherUtil
         try
         {
             Response response = new OkHttpClient.Builder().build()
-                    .newCall(new Request.Builder().get().url("https://api.github.com/repos/skoliveira/BeckyTTS/releases/latest").build())
+                    .newCall(new Request.Builder().get().url("https://api.github.com/repos/skoliveira/beckytts/releases/latest").build())
                     .execute();
             ResponseBody body = response.body();
             if(body != null)

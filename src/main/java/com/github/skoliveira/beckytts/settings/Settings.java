@@ -177,9 +177,8 @@ public class Settings implements GuildSettingsProvider
         return usersTts.contains(userid);
     }
 
-    public void clearAutoTtsUsers() {
-        usersTts.clear();
-        usersTts = null;
-    }
+//    public void clearAutoTtsUsers() {
+//        usersTts.clear();
+//    }
 
 }
