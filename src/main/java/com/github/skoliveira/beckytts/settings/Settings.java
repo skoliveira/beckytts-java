@@ -42,6 +42,7 @@ public class Settings implements GuildSettingsProvider
     private boolean autoTtsMode;
     private String prefix;
     private final Set<Long> usersTts;
+    private final Set<String> ignoredWords;
 
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean autoTtsMode, String prefix)
     {
@@ -74,6 +75,7 @@ public class Settings implements GuildSettingsProvider
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
         this.usersTts = new HashSet<>();
+        this.ignoredWords = new HashSet<>();
     }
 
     public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean autoTtsMode, String prefix)
@@ -86,6 +88,7 @@ public class Settings implements GuildSettingsProvider
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
         this.usersTts = new HashSet<>();
+        this.ignoredWords = new HashSet<>();
     }
 
     // Getters
@@ -122,7 +125,7 @@ public class Settings implements GuildSettingsProvider
     @Override
     public Collection<String> getPrefixes()
     {
-        return prefix == null ? Collections.EMPTY_SET : Collections.singleton(prefix);
+        return prefix == null ? Collections.emptySet() : Collections.singleton(prefix);
     }
 
     // Setters
@@ -179,6 +182,18 @@ public class Settings implements GuildSettingsProvider
 
     public void clearAutoTtsUsers() {
         usersTts.clear();
+    }
+    
+    public boolean addIgnoredWord(String word) {
+        return ignoredWords.add(word);
+    }
+    
+    public boolean removeIgnoredWord(String word) {
+        return ignoredWords.remove(word);
+    }
+    
+    public boolean containsIgnoredWord(String word) {
+        return ignoredWords.contains(word);
     }
 
 }
