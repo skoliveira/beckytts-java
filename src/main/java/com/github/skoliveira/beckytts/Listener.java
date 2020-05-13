@@ -146,7 +146,7 @@ public class Listener extends ListenerAdapter
         message = message.replaceAll(":\\S+:", "");
 
         // remove extra white spaces
-        message = message.replaceAll("(?: |\\t)(?: |\\t)+(?!$)", " ");
+        message = message.replaceAll("(?: |\\t)(?: |\\t)+", " ");
 
         if(message.isBlank())
             return;
