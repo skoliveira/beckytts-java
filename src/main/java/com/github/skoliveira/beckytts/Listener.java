@@ -145,8 +145,9 @@ public class Listener extends ListenerAdapter
         // remove emojis
         message = message.replaceAll(":\\S+:", "");
 
-        // remove extra white spaces
-        message = message.replaceAll("(?: |\\t)(?: |\\t)+", " ");
+        // remove extra white spaces or tabs
+        message = message.replaceAll("[ |\\t][ |\\t]+", " ");
+        message = message.replaceAll("\\n[ |\\t]", "\n");
 
         if(message.isBlank())
             return;

@@ -18,6 +18,7 @@ package com.github.skoliveira.beckytts;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.PlayerManager;
@@ -120,7 +121,12 @@ public class Bot
             });
             OkHttpClient client = jda.getHttpClient();
             client.connectionPool().evictAll();
-            client.dispatcher().executorService().shutdown();
+            try {
+                client.dispatcher().executorService().awaitTermination(3, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         if(gui!=null)
             gui.dispose();

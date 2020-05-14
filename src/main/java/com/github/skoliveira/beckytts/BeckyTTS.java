@@ -100,7 +100,7 @@ public class BeckyTTS
                 .setLinkedCacheSize(200)
                 .setGuildSettingsManager(settings)
                 .addCommands(aboutCommand,
-                        new PingCommand(),
+                        new PingCmd(),
                         new SettingsCmd(bot),
 
                         new TtsCmd(bot),
