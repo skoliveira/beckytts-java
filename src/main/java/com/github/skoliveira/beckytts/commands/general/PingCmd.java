@@ -16,8 +16,11 @@ public class PingCmd extends Command {
     @Override
     protected void execute(CommandEvent event) {
         long webping = event.getJDA().getGatewayPing();
-        event.getJDA().getRestPing().queue(
-                (time) -> event.getChannel().sendMessageFormat("Ping: %d ms | Websocket: %d ms", time, webping).queue());
+        event.getChannel().sendMessageFormat("Websocket: %d ms", webping).queue();
+        for(int i=0; i<4; i++) {
+            event.getJDA().getRestPing().queue(
+                    (t) -> event.getChannel().sendMessageFormat("Ping: %d ms", t).queue());
+        }       
     }
 
 }

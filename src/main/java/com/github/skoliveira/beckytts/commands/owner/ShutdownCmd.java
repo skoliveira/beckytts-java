@@ -16,7 +16,6 @@
 package com.github.skoliveira.beckytts.commands.owner;
 
 import com.github.skoliveira.beckytts.Bot;
-import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.commands.OwnerCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
 

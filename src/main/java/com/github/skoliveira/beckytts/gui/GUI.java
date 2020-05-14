@@ -17,12 +17,12 @@ package com.github.skoliveira.beckytts.gui;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
 import com.github.skoliveira.beckytts.Bot;
-
 
 /**
  *
@@ -32,14 +32,14 @@ public class GUI extends JFrame
 {
     private final ConsolePanel console;
     private final Bot bot;
-    
+
     public GUI(Bot bot) 
     {
         super();
         this.bot = bot;
         console = new ConsolePanel();
     }
-    
+
     public void init()
     {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

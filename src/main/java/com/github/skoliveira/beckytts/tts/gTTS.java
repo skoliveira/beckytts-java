@@ -2,6 +2,7 @@ package com.github.skoliveira.beckytts.tts;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 public class gTTS {
     private static final String GOOGLE_TTS_URL =
@@ -20,13 +21,14 @@ public class gTTS {
             return null;
 
         List<String> list = splitText(text);
-        for(int index=0; index<list.size(); index++) {
+        ListIterator<String> litr = list.listIterator();
+        while(litr.hasNext()) {
             String element = GOOGLE_TTS_URL + "?"
                     + "ie=" + "UTF-8"
                     + "&tl=" + lang
-                    + "&q=" + format(list.get(index))
+                    + "&q=" + format(litr.next())
                     + "&client=" + "tw-ob";
-            list.set(index, element);
+            litr.set(element);
         }
         String[] array = list.toArray(new String[list.size()]);
         return array;

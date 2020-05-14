@@ -20,6 +20,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.PlayerManager;
 import com.github.skoliveira.beckytts.gui.GUI;
@@ -27,6 +30,7 @@ import com.github.skoliveira.beckytts.settings.SettingsManager;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import okhttp3.OkHttpClient;
@@ -105,10 +109,15 @@ public class Bot
     {
         if(shuttingDown)
             return;
+        
+        Logger log = LoggerFactory.getLogger("Finished");
         shuttingDown = true;
         threadpool.shutdownNow();
         if(jda.getStatus()!=JDA.Status.SHUTTING_DOWN)
         {
+            jda.getPresence().setStatus(OnlineStatus.DO_NOT_DISTURB);
+            jda.getPresence().setActivity(Activity.playing("Shutting down..."));
+            log.info("Shutdown in 3 seconds");
             jda.getGuilds().stream().forEach(g -> 
             {
                 g.getAudioManager().closeAudioConnection();
@@ -123,9 +132,8 @@ public class Bot
             client.connectionPool().evictAll();
             try {
                 client.dispatcher().executorService().awaitTermination(3, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage());
             }
         }
         if(gui!=null)
