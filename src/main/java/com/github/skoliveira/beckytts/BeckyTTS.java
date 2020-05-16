@@ -15,26 +15,46 @@
  */
 package com.github.skoliveira.beckytts;
 
-import com.github.skoliveira.beckytts.commands.admin.*;
-import com.github.skoliveira.beckytts.commands.audio.*;
-import com.github.skoliveira.beckytts.commands.general.*;
-import com.github.skoliveira.beckytts.commands.owner.*;
-import com.github.skoliveira.beckytts.commands.ttsrole.*;
+import java.awt.Color;
+
+import javax.security.auth.login.LoginException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.skoliveira.beckytts.commands.admin.AutoTtsCmd;
+import com.github.skoliveira.beckytts.commands.admin.PrefixCmd;
+import com.github.skoliveira.beckytts.commands.admin.SetroleCmd;
+import com.github.skoliveira.beckytts.commands.admin.SettcCmd;
+import com.github.skoliveira.beckytts.commands.admin.SetvcCmd;
+import com.github.skoliveira.beckytts.commands.audio.SkipCmd;
+import com.github.skoliveira.beckytts.commands.audio.VoteSkipCmd;
+import com.github.skoliveira.beckytts.commands.general.PingCmd;
+import com.github.skoliveira.beckytts.commands.general.SettingsCmd;
+import com.github.skoliveira.beckytts.commands.owner.DebugCmd;
+import com.github.skoliveira.beckytts.commands.owner.EvalCmd;
+import com.github.skoliveira.beckytts.commands.owner.SetavatarCmd;
+import com.github.skoliveira.beckytts.commands.owner.SetgameCmd;
+import com.github.skoliveira.beckytts.commands.owner.SetnameCmd;
+import com.github.skoliveira.beckytts.commands.owner.SetstatusCmd;
+import com.github.skoliveira.beckytts.commands.owner.ShutdownCmd;
+import com.github.skoliveira.beckytts.commands.ttsrole.StopCmd;
+import com.github.skoliveira.beckytts.commands.ttsrole.TtsCmd;
+import com.github.skoliveira.beckytts.commands.ttsrole.VolumeCmd;
 import com.github.skoliveira.beckytts.entities.Prompt;
 import com.github.skoliveira.beckytts.gui.GUI;
 import com.github.skoliveira.beckytts.settings.SettingsManager;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jdautilities.examples.command.*;
+import com.jagrosh.jdautilities.examples.command.AboutCommand;
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 
-import java.awt.Color;
-import javax.security.auth.login.LoginException;
-import net.dv8tion.jda.api.*;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -87,7 +107,7 @@ public class BeckyTTS
                 new String[]{"High-quality voice experiences", "Auto-TTS system", "Easy to host yourself"},
                 RECOMMENDED_PERMS);
         aboutCommand.setIsAuthor(false);
-        
+
         // set up the command client
         CommandClientBuilder cb = new CommandClientBuilder()
                 .setPrefix(config.getPrefix())
@@ -98,12 +118,12 @@ public class BeckyTTS
                 .setLinkedCacheSize(200)
                 .setGuildSettingsManager(settings)
                 .addCommands(aboutCommand,
-                        new PingCmd(),
+                        new PingCmd(bot),
                         new SettingsCmd(bot),
                         new SkipCmd(bot),
+                        new VoteSkipCmd(bot),
 
                         new TtsCmd(bot),
-                        new ForceskipCmd(bot),
                         new StopCmd(bot),
                         new VolumeCmd(bot),
 

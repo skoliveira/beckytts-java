@@ -31,7 +31,7 @@ public class StopCmd extends TTSRoleCommand
     {
         super(bot);
         this.name = "stop";
-        this.help = "stops and leaving the voice channel";
+        this.help = "leaves the channel";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.bePlaying = false;
     }

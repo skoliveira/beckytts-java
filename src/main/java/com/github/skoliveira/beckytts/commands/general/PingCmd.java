@@ -1,16 +1,17 @@
 package com.github.skoliveira.beckytts.commands.general;
 
+import com.github.skoliveira.beckytts.Bot;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 public class PingCmd extends Command {
 
-    public PingCmd()
+    public PingCmd(Bot bot)
     {
         this.name = "ping";
         this.help = "checks the bot's latency";
         this.guildOnly = false;
-        this.aliases = new String[]{"pong"};
+        this.aliases = bot.getConfig().getAliases(this.name);
     }
 
     @Override

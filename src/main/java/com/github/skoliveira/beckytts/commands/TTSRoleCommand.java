@@ -19,8 +19,6 @@ public abstract class TTSRoleCommand extends AudioCommand
     {
         if(event.getAuthor().getId().equals(event.getClient().getOwnerId()))
             return true;
-        if(event.getGuild()==null)
-            return true;
         if(event.getMember().hasPermission(Permission.MANAGE_SERVER))
             return true;
         Settings settings = event.getClient().getSettingsFor(event.getGuild());

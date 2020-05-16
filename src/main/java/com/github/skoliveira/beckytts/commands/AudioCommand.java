@@ -40,7 +40,6 @@ public abstract class AudioCommand extends Command
     {
         this.bot = bot;
         this.guildOnly = true;
-        this.category = new Category("Audio");
     }
     
     @Override

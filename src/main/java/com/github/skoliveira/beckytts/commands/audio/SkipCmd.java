@@ -19,6 +19,7 @@ import com.github.skoliveira.beckytts.BeckyTTS;
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.commands.AudioCommand;
+import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
 import net.dv8tion.jda.api.entities.Member;
@@ -33,50 +34,26 @@ public class SkipCmd extends AudioCommand
     {
         super(bot);
         this.name = "skip";
-        this.help = "votes to skip the text to speech";
+        this.help = "skip the currently speech";
         this.aliases = bot.getConfig().getAliases(this.name);
-        this.beListening = true;
         this.bePlaying = true;
-        this.category = null;
     }
 
     @Override
     public void doCommand(CommandEvent event) 
     {
-        AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-        Long userId = handler.getRequester();
-        Member u = event.getGuild().getMemberById(userId);
-        if(event.getAuthor().getIdLong()==userId)
-        {
-            event.replySuccess("Skipped **Text To Speech**"+(userId==0 ? "" : 
-                " (requested by "+(u==null ? "someone" : "**"+u.getNickname()+"**")+")"));
-            handler.stopAndClearUser(userId);
+        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        Long requesterId = handler.getRequester();
+        Member m = event.getGuild().getMemberById(requesterId);
+        if(event.getAuthor().getIdLong()==requesterId || TTSRoleCommand.checkTTSPermission(event)) {
+            event.replySuccess("Skipped **Text To Speech**"+(requesterId==0 ? "" : 
+                " (requested by "+(m==null ? "someone" : "**"+m.getNickname()+"**")+")"));
+            handler.stopAndClearUser(requesterId);
             event.getMessage().addReaction(BeckyTTS.THUMBSUP_EMOJI).queue();
+            return;
         }
-        else
-        {
-            int listeners = (int)event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
-                    .filter(m -> !m.getUser().isBot() && !m.getVoiceState().isDeafened()).count();
-            String msg;
-            if(handler.getVotes().contains(event.getAuthor().getId()))
-                msg = event.getClient().getWarning()+" You already voted to skip this text to speech `[";
-            else
-            {
-                msg = event.getClient().getSuccess()+" You voted to skip the text to speech `[";
-                handler.getVotes().add(event.getAuthor().getId());
-            }
-            int skippers = (int)event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
-                    .filter(m -> handler.getVotes().contains(m.getUser().getId())).count();
-            int required = (int)Math.ceil(listeners * .55);
-            msg+= skippers+" votes, "+required+"/"+listeners+" needed]`";
-            if(skippers>=required)
-            {
-                msg+="\n"+event.getClient().getSuccess()+" Skipped **Text To Speech**"
-                        +(userId==0 ? "" : " (requested by "+(u==null ? "someone" : "**"+u.getNickname()+"**")+")");
-                handler.stopAndClearUser(userId);
-            }
-            event.reply(msg);
-        }
+
+        VoteSkipCmd skip = new VoteSkipCmd(bot);
+        skip.doCommand(event);     
     }
-    
 }

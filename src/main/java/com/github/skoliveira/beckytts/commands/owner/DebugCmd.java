@@ -52,13 +52,12 @@ public class DebugCmd extends OwnerCommand
         sb.append("```\nSystem Properties:");
         for(String key: PROPERTIES)
             sb.append("\n  ").append(key).append(" = ").append(System.getProperty(key));
-        sb.append("\n\nJMusicBot Information:")
+        sb.append("\n\nBeckyTTS Information:")
                 .append("\n  Version = ").append(OtherUtil.getCurrentVersion())
                 .append("\n  Owner = ").append(bot.getConfig().getOwnerId())
                 .append("\n  Prefix = ").append(bot.getConfig().getPrefix())
                 .append("\n  AltPrefix = ").append(bot.getConfig().getAltPrefix())
                 .append("\n  MaxSeconds = ").append(bot.getConfig().getMaxSeconds())
-                .append("\n  SongInStatus = ").append(bot.getConfig().getSongInStatus())
                 .append("\n  StayInChannel = ").append(bot.getConfig().getStay())
                 .append("\n  UseEval = ").append(bot.getConfig().useEval())
                 .append("\n  UpdateAlerts = ").append(bot.getConfig().useUpdateAlerts());
