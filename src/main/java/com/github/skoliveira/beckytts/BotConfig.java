@@ -88,7 +88,6 @@ public class BotConfig
             stayInChannel = config.getBoolean("stayinchannel");
             updatealerts = config.getBoolean("updatealerts");
             useEval = config.getBoolean("eval");
-            maxSeconds = config.getLong("maxtime");
             aliases = config.getConfig("aliases");
             dbots = owner == 113156185389092864L;
 
