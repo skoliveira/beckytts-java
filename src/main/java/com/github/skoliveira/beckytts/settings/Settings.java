@@ -41,8 +41,8 @@ public class Settings implements GuildSettingsProvider
     private int volume;
     private boolean autoTtsMode;
     private String prefix;
-    private final Set<Long> usersTts;
-    private final Set<String> ignoredWords;
+    private final Set<Long> ttsUsers;
+    private final Set<String> blacklist;
 
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean autoTtsMode, String prefix)
     {
@@ -74,8 +74,8 @@ public class Settings implements GuildSettingsProvider
         this.volume = volume;
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
-        this.usersTts = new HashSet<>();
-        this.ignoredWords = new HashSet<>();
+        this.ttsUsers = new HashSet<>();
+        this.blacklist = new HashSet<>();
     }
 
     public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean autoTtsMode, String prefix)
@@ -87,8 +87,8 @@ public class Settings implements GuildSettingsProvider
         this.volume = volume;
         this.autoTtsMode = autoTtsMode;
         this.prefix = prefix;
-        this.usersTts = new HashSet<>();
-        this.ignoredWords = new HashSet<>();
+        this.ttsUsers = new HashSet<>();
+        this.blacklist = new HashSet<>();
     }
 
     // Getters
@@ -161,39 +161,40 @@ public class Settings implements GuildSettingsProvider
 
     public void setPrefix(String prefix)
     {
+        this.removeWord(this.prefix);
         this.prefix = prefix;
-        this.manager.writeSettings();
+        this.addWord(prefix);
     }
 
     public boolean addAutoTtsUser(Member member) {
         Long userid = member == null ? null : member.getIdLong();
-        return usersTts.add(userid);
+        return ttsUsers.add(userid);
     }
 
     public boolean removeAutoTtsUser(Member member) {
         Long userid = member == null ? null : member.getIdLong();
-        return usersTts.remove(userid);
+        return ttsUsers.remove(userid);
     }
 
     public boolean containsAutoTtsUser(Member member) {
         Long userid = member == null ? null : member.getIdLong();
-        return usersTts.contains(userid);
+        return ttsUsers.contains(userid);
     }
 
     public void clearAutoTtsUsers() {
-        usersTts.clear();
+        ttsUsers.clear();
     }
-    
-    public boolean addIgnoredWord(String word) {
-        return ignoredWords.add(word);
+
+    public boolean addWord(String word) {
+        return blacklist.add(word);
     }
-    
-    public boolean removeIgnoredWord(String word) {
-        return ignoredWords.remove(word);
+
+    public boolean removeWord(String word) {
+        return blacklist.remove(word);
     }
-    
-    public boolean containsIgnoredWord(String word) {
-        return ignoredWords.contains(word);
+
+    public String[] getBlacklist() {
+        return blacklist.toArray(new String[blacklist.size()]);
     }
 
 }

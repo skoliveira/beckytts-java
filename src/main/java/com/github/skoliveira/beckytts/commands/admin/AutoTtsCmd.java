@@ -70,7 +70,8 @@ public class AutoTtsCmd extends AdminCommand
                         + "`"+this.getName()+" del` remove word from the blacklist");
                 return;
             }
-            event.reply("```" + "Blacklist:\n1 - \n2 - \n3 -" + "```");
+            ListCmd listcmd = new ListCmd(bot);
+            listcmd.execute(event);
         }
 
         public class ListCmd extends AdminCommand {
@@ -83,7 +84,12 @@ public class AutoTtsCmd extends AdminCommand
 
             @Override
             protected void execute(CommandEvent event) {
-                event.reply("```" + "Blacklist:\n1 - \n2 - \n3 -" + "```");
+                String[] list = bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist();
+                String msg = "```" + "Blacklist:";
+                for(String word : list)
+                    msg += "\n   " + word;
+                msg += "```";
+                event.reply(msg);
             }
         }
 
@@ -98,7 +104,17 @@ public class AutoTtsCmd extends AdminCommand
 
             @Override
             protected void execute(CommandEvent event) {
-                event.reply("```" + "Added" + "```");
+                if(event.getArgs().isEmpty())
+                    return;
+
+                if(bot.getSettingsManager().getSettings(event.getGuild()).addWord(event.getArgs())) {
+                    event.replySuccess("`"+event.getArgs()+"` added to the blacklist");
+                    bot.getSettingsManager().writeSettings();
+                    return;
+                }
+                
+                event.replyError("Couldn't add `"+event.getArgs()+"` to the blacklist"
+                        + "\nItem already exists in the list");
             }
         }
 
@@ -108,12 +124,23 @@ public class AutoTtsCmd extends AdminCommand
                 this.name = "del";
                 this.help = "remove word from the blacklist";
                 this.arguments = "<word>";
+                this.aliases = new String[]{"remove","delete"};
                 this.guildOnly = true;
             }
 
             @Override
             protected void execute(CommandEvent event) {
-                event.reply("```" + "Removed" + "```");
+                if(event.getArgs().isEmpty())
+                    return;
+
+                if(bot.getSettingsManager().getSettings(event.getGuild()).removeWord(event.getArgs())) {
+                    event.replySuccess("`"+event.getArgs()+"` removed from the blacklist");
+                    bot.getSettingsManager().writeSettings();
+                    return;
+                }
+
+                event.replyError("Couldn't remove `"+event.getArgs()+"` from the blacklist"
+                        + "\nItem not found in the list"+"```");
             }
 
         }

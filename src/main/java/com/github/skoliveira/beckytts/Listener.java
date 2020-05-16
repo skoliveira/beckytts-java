@@ -135,9 +135,14 @@ public class Listener extends ListenerAdapter
 
         if(!settings.containsAutoTtsUser(event.getMember()))
             return;
-
+        
         String message = event.getMessage().getContentStripped();
 
+        for(String prefix : bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist()) {
+            if(message.startsWith(prefix))
+                return;
+        }
+        
         // remove links
         String regexUrl = "((http:\\/\\/|https:\\/\\/)?(www.)?(([a-zA-Z0-9-]){2,}\\.){1,4}([a-zA-Z]){2,6}(\\/([a-zA-Z-_\\/\\.0-9#:?=&;,]*)?)?)";
         message = message.replaceAll(regexUrl, "");

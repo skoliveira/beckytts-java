@@ -56,7 +56,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
 
     private Settings createDefaultSettings(Guild guild)
     {
-        long roleId = guild.getRolesByName("@everyone", true).get(0).getIdLong();
+        long roleId = guild.getIdLong(); // @everone id
         return new Settings(this, 0, 0, roleId, 100, false, null);
     }
 
@@ -64,23 +64,30 @@ public class SettingsManager implements GuildSettingsManager<Object>
     public void init() {
         try {
             JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath("serversettings.json"))));
-            loadedSettings.keySet().forEach((id) -> {
+            loadedSettings.keySet().stream().forEach((id) -> {
                 JSONObject o = loadedSettings.getJSONObject(id);
-                settings.put(Long.parseLong(id), new Settings(this,
+                Settings s = new Settings(this,
                         (o.has("text_channel_id") ? o.getString("text_channel_id") : null),
                         (o.has("voice_channel_id")? o.getString("voice_channel_id"): null),
                         (o.has("role_id")         ? o.getString("role_id")         : null),
                         (o.has("volume")          ? o.getInt("volume")             : 100),
                         (o.has("autotts")         ? o.getBoolean("autotts")        : false),
-                        (o.has("prefix")          ? o.getString("prefix")          : null)));
+                        (o.has("prefix")          ? o.getString("prefix")          : null));
+                if(o.has("blacklist")) {
+                    o.getJSONArray("blacklist").forEach((word) -> {
+                        if(word!=null) {
+                            s.addWord(word.toString());
+                        }
+                    });
+                }
+                settings.put(Long.parseLong(id), s);
             });
         } catch(IOException | JSONException e) {
             LoggerFactory.getLogger("Settings").warn("Failed to load server settings (this is normal if no settings have been set yet): "+e);
         }
-        GuildSettingsManager.super.init();
     }
 
-    protected void writeSettings()
+    public void writeSettings()
     {
         JSONObject obj = new JSONObject();
         settings.keySet().stream().forEach(key -> {
@@ -98,6 +105,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
                 o.put("autotts", true);
             if(s.getPrefix() != null)
                 o.put("prefix", s.getPrefix());
+            o.put("blacklist", s.getBlacklist());
             obj.put(Long.toString(key), o);
         });
         try {
@@ -111,7 +119,6 @@ public class SettingsManager implements GuildSettingsManager<Object>
     public void shutdown() {
         this.settings.forEach((l, s) -> { s.clearAutoTtsUsers(); });
         this.settings.clear();
-        GuildSettingsManager.super.shutdown();
     }
 
 }
