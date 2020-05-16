@@ -15,6 +15,7 @@
  */
 package com.github.skoliveira.beckytts.commands.owner;
 
+import com.github.skoliveira.beckytts.BeckyTTS;
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.commands.OwnerCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
@@ -39,7 +40,7 @@ public class ShutdownCmd extends OwnerCommand
     @Override
     protected void execute(CommandEvent event)
     {
-        event.replyWarning("Shutting down...");
+        event.getMessage().addReaction(BeckyTTS.OK_EMOJI).queue();
         bot.shutdown();
     }
 }

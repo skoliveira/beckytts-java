@@ -15,6 +15,7 @@
  */
 package com.github.skoliveira.beckytts.commands.ttsrole;
 
+import com.github.skoliveira.beckytts.BeckyTTS;
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
@@ -41,6 +42,6 @@ public class StopCmd extends TTSRoleCommand
         AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
         handler.stopAndClear();
         event.getGuild().getAudioManager().closeAudioConnection();
-        event.reply(event.getClient().getSuccess()+" No problem, I am leaving already...");
+        event.getMessage().addReaction(BeckyTTS.THUMBSUP_EMOJI).queue();
     }
 }

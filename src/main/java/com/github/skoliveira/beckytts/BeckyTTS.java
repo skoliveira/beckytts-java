@@ -42,9 +42,8 @@ import org.slf4j.LoggerFactory;
  */
 public class BeckyTTS 
 {
-    public final static String PLAY_EMOJI  = "\u25B6"; // ▶
-    public final static String PAUSE_EMOJI = "\u23F8"; // ⏸
-    public final static String STOP_EMOJI  = "\u23F9"; // ⏹
+    public final static String OK_EMOJI       = "U+1F44C"; // 👌
+    public final static String THUMBSUP_EMOJI = "U+1F44D"; // 👍
     public final static Permission[] RECOMMENDED_PERMS = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,
             Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
             Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
@@ -84,12 +83,11 @@ public class BeckyTTS
         Bot bot = new Bot(waiter, config, settings);
 
         AboutCommand aboutCommand = new AboutCommand(Color.BLUE.brighter(),
-                "a music bot that is [easy to host yourself!](https://github.com/skoliveira/BeckyTTS) (v. "+version+")",
-                new String[]{"High-quality music playback", "FairQueue™ Technology", "Easy to host yourself"},
+                "a text to speech bot that is [easy to host yourself!](https://github.com/skoliveira/BeckyTTS) (v. "+version+")",
+                new String[]{"High-quality voice experiences", "Auto-TTS system", "Easy to host yourself"},
                 RECOMMENDED_PERMS);
         aboutCommand.setIsAuthor(false);
-        aboutCommand.setReplacementCharacter("\uD83C\uDFB6"); // 🎶
-
+        
         // set up the command client
         CommandClientBuilder cb = new CommandClientBuilder()
                 .setPrefix(config.getPrefix())
@@ -102,12 +100,10 @@ public class BeckyTTS
                 .addCommands(aboutCommand,
                         new PingCmd(),
                         new SettingsCmd(bot),
-
-                        new TtsCmd(bot),
                         new SkipCmd(bot),
 
+                        new TtsCmd(bot),
                         new ForceskipCmd(bot),
-
                         new StopCmd(bot),
                         new VolumeCmd(bot),
 

@@ -40,7 +40,7 @@ public abstract class AudioCommand extends Command
     {
         this.bot = bot;
         this.guildOnly = true;
-        this.category = new Category("Music");
+        this.category = new Category("Audio");
     }
     
     @Override
@@ -60,7 +60,7 @@ public abstract class AudioCommand extends Command
         bot.getPlayerManager().setUpHandler(event.getGuild()); // no point constantly checking for this later
         if(bePlaying && !((AudioHandler)event.getGuild().getAudioManager().getSendingHandler()).isMusicPlaying(event.getJDA()))
         {
-            event.reply(event.getClient().getError()+" There must be music playing to use that!");
+            event.reply(event.getClient().getError()+" There must be a speech to perform this action!");
             return;
         }
         if(beListening)

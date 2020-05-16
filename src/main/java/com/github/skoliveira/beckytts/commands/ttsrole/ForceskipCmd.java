@@ -15,12 +15,13 @@
  */
 package com.github.skoliveira.beckytts.commands.ttsrole;
 
+import com.github.skoliveira.beckytts.BeckyTTS;
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.jagrosh.jdautilities.command.CommandEvent;
 
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
 
 /**
  *
@@ -40,10 +41,12 @@ public class ForceskipCmd extends TTSRoleCommand
     @Override
     public void doCommand(CommandEvent event) 
     {
-        AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
-        User u = event.getJDA().getUserById(handler.getRequester());
-        event.reply(event.getClient().getSuccess()+" Skipped **"+handler.getPlayer().getPlayingTrack().getInfo().title
-                +"** (requested by "+(u==null ? "someone" : "**"+u.getName()+"**")+")");
-        handler.getPlayer().stopTrack();
+        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        Long userId = handler.getRequester();
+        Member m = event.getGuild().getMemberById(userId);
+        event.replySuccess("Skipped **Text To Speech**"+(userId==0 ? "" : 
+            " (requested by "+(m==null ? "someone" : "**"+m.getNickname()+"**")+")"));
+        handler.stopAndClearUser(userId);
+        event.getMessage().addReaction(BeckyTTS.THUMBSUP_EMOJI).queue();
     }
 }

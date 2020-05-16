@@ -17,11 +17,10 @@ package com.github.skoliveira.beckytts.audio;
 
 import java.nio.ByteBuffer;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 
-import com.github.skoliveira.beckytts.BeckyTTS;
-import com.github.skoliveira.beckytts.queue.FairQueue;
-import com.github.skoliveira.beckytts.utils.FormatUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -38,7 +37,7 @@ import net.dv8tion.jda.api.entities.Guild;
  */
 public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 {
-    private final FairQueue<QueuedTrack> queue = new FairQueue<>();
+    private final Queue<QueuedTrack> queue = new LinkedList<>();
     private final Set<String> votes = new HashSet<>();
 
     private final PlayerManager manager;
@@ -54,41 +53,29 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         this.guildId = guild.getIdLong();
     }
 
-    public int addTrackToFront(QueuedTrack qtrack)
+    public boolean addTrack(QueuedTrack qtrack)
     {
         if(audioPlayer.getPlayingTrack()==null)
         {
             audioPlayer.playTrack(qtrack.getTrack());
-            return -1;
+            return false;
         }
         else
-        {
-            queue.addAt(0, qtrack);
-            return 0;
-        }
-    }
-
-    public int addTrack(QueuedTrack qtrack)
-    {
-        if(audioPlayer.getPlayingTrack()==null)
-        {
-            audioPlayer.playTrack(qtrack.getTrack());
-            return -1;
-        }
-        else
-            return queue.add(qtrack);
-    }
-
-    public FairQueue<QueuedTrack> getQueue()
-    {
-        return queue;
+            return queue.offer(qtrack);
     }
 
     public void stopAndClear()
     {
         queue.clear();
         audioPlayer.stopTrack();
-        //current = null;
+    }
+
+    public void stopAndClearUser(long identifier)
+    {
+        while(queue.peek()!=null && queue.peek().getIdentifier()==identifier) {
+            queue.poll();
+        }
+        audioPlayer.stopTrack();
     }
 
     public boolean isMusicPlaying(JDA jda)
@@ -127,7 +114,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
         }
         else
         {
-            QueuedTrack qt = queue.pull();
+            QueuedTrack qt = queue.poll();
             player.playTrack(qt.getTrack());
         }
     }
@@ -136,23 +123,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
     public void onTrackStart(AudioPlayer player, AudioTrack track) 
     {
         votes.clear();
-    }
-
-    public String getTopicFormat(JDA jda)
-    {
-        if(isMusicPlaying(jda))
-        {
-            long userid = getRequester();
-            AudioTrack track = audioPlayer.getPlayingTrack();
-            String title = track.getInfo().title;
-            if(title==null || title.equals("Unknown Title"))
-                title = track.getInfo().uri;
-            return "**"+title+"** ["+(userid==0 ? "autoplay" : "<@"+userid+">")+"]"
-            + "\n" + (audioPlayer.isPaused() ? BeckyTTS.PAUSE_EMOJI : BeckyTTS.PLAY_EMOJI) + " "
-            + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
-            + FormatUtil.volumeIcon(audioPlayer.getVolume());
-        }
-        else return "No music playing " + BeckyTTS.STOP_EMOJI + " " + FormatUtil.volumeIcon(audioPlayer.getVolume());
     }
 
     // Audio Send Handler methods
