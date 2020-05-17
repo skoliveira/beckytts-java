@@ -109,9 +109,9 @@ public class AutoTtsCmd extends AdminCommand
                     return;
                 }
 
-                if(bot.getSettingsManager().getSettings(event.getGuild()).addWord(event.getArgs())) {
+                if(!bot.getSettingsManager().getSettings(event.getGuild()).addWord(event.getArgs())) {
                     event.replyError("Couldn't add `"+event.getArgs()+"` to the blacklist"
-                            + "\nItem already exists in the list");
+                            + "\nThe item already exists in the list");
                     return;
                 }
 
@@ -139,7 +139,7 @@ public class AutoTtsCmd extends AdminCommand
 
                 if(!bot.getSettingsManager().getSettings(event.getGuild()).removeWord(event.getArgs())) {
                     event.replyError("Couldn't remove `"+event.getArgs()+"` from the blacklist"
-                            + "\nItem not found in the list"+"```");
+                            + "\nItem not found in the list");
                     return;
                 }
 
