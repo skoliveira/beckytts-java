@@ -53,10 +53,9 @@ public class TtsCmd extends TTSRoleCommand
             for(Command cmd: children)
                 builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
             event.reply(builder.toString());
+            return;
         }
-        String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">") 
-                ? event.getArgs().substring(1,event.getArgs().length()-1) 
-                : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
+        String args = event.getArgs();
         String url = "";        
         GoogleTTS gtts = new GoogleTTS();
 		try {
