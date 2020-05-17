@@ -57,7 +57,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
     private Settings createDefaultSettings(Guild guild)
     {
         long roleId = guild.getIdLong(); // @everone id
-        return new Settings(this, 0, 0, roleId, 100, false, null);
+        return new Settings(this, 0, 0, roleId, 100, true, null);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
                         (o.has("voice_channel_id")? o.getString("voice_channel_id"): null),
                         (o.has("role_id")         ? o.getString("role_id")         : null),
                         (o.has("volume")          ? o.getInt("volume")             : 100),
-                        (o.has("autotts")         ? o.getBoolean("autotts")        : false),
+                        (o.has("autotts")         ? o.getBoolean("autotts")        : true),
                         (o.has("prefix")          ? o.getString("prefix")          : null));
                 if(o.has("blacklist")) {
                     o.getJSONArray("blacklist").forEach((word) -> {
@@ -101,7 +101,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
                 o.put("role_id", Long.toString(s.roleId));
             if(s.getVolume()!=100)
                 o.put("volume",s.getVolume());
-            if(s.getAutoTtsMode())
+            if(!s.getAutoTtsMode())
                 o.put("autotts", true);
             if(s.getPrefix() != null)
                 o.put("prefix", s.getPrefix());

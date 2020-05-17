@@ -38,11 +38,11 @@ import com.github.skoliveira.beckytts.entities.Prompt;
 public class OtherUtil
 {
     public final static String NEW_VERSION_AVAILABLE = "There is a new version of BeckyTTS available!\n"
-                    + "Current version: %s\n"
-                    + "New Version: %s\n\n"
-                    + "Please visit https://github.com/skoliveira/BeckyTTS/releases/latest to get the latest release.";
+            + "Current version: %s\n"
+            + "New Version: %s\n\n"
+            + "Please visit https://github.com/skoliveira/BeckyTTS/releases/latest to get the latest release.";
     private final static String WINDOWS_INVALID_PATH = "c:\\windows\\system32\\";
-    
+
     /**
      * gets a Path from a String
      * also fixes the windows tendency to try to start in system32
@@ -65,7 +65,7 @@ public class OtherUtil
         }
         return Paths.get(path);
     }
-    
+
     /**
      * Loads a resource from the jar as a string
      * 
@@ -86,7 +86,7 @@ public class OtherUtil
             return null;
         }
     }
-    
+
     /**
      * Loads image data from a URL
      * 
@@ -107,7 +107,7 @@ public class OtherUtil
         catch(IOException | IllegalArgumentException ignore) {}
         return null;
     }
-    
+
     /**
      * Parses an activity from a string
      * 
@@ -137,12 +137,12 @@ public class OtherUtil
         }
         return Activity.playing(activity);
     }
-   
+
     public static String makeNonEmpty(String str)
     {
         return str == null || str.isEmpty() ? "\u200B" : str;
     }
-    
+
     public static OnlineStatus parseStatus(String status)
     {
         if(status==null || status.trim().isEmpty())
@@ -150,24 +150,24 @@ public class OtherUtil
         OnlineStatus st = OnlineStatus.fromKey(status);
         return st == null ? OnlineStatus.ONLINE : st;
     }
-    
+
     public static String checkVersion(Prompt prompt)
     {
         // Get current version number
         String version = getCurrentVersion();
-        
+
         // Check for new version
         String latestVersion = getLatestVersion();
-        
+
         if(latestVersion!=null && !latestVersion.equals(version))
         {
             prompt.alert(Prompt.Level.WARNING, "Version", String.format(NEW_VERSION_AVAILABLE, version, latestVersion));
         }
-        
+
         // Return the current version
         return version;
     }
-    
+
     public static String getCurrentVersion()
     {
         if(BeckyTTS.class.getPackage()!=null && BeckyTTS.class.getPackage().getImplementationVersion()!=null)
@@ -175,7 +175,7 @@ public class OtherUtil
         else
             return "UNKNOWN";
     }
-    
+
     public static String getLatestVersion()
     {
         try
@@ -203,5 +203,38 @@ public class OtherUtil
         {
             return null;
         }
+    }
+
+    private static char[] vowels = {'a','ã','e','i','o','u'};
+    private static boolean isOno(String s) {
+        if(s.length() < 3)
+            return false;
+
+        for(char v : vowels) {
+            if(v == s.charAt(s.length()-3) && v == s.charAt(s.length()-2) && v == s.charAt(s.length()-1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static String onomatopoeia(String fun) {
+        if(fun.length() < 3)
+            return fun;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(fun.substring(0,2));
+        for(int i=2; i<fun.length(); i++) {
+            if(isOno(fun.substring(i-2,i+1))) {
+                if(sb.charAt(sb.length()-2) != ' ' ) {
+                    sb.insert(sb.length()-1, ' ');
+                }
+                sb.append(' ').append(fun.charAt(i));
+            }
+            else {
+                sb.append(fun.charAt(i));
+            }
+        }
+        return sb.toString();
     }
 }

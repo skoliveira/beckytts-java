@@ -151,14 +151,17 @@ public class Listener extends ListenerAdapter
 
         // remove emojis
         message = message.replaceAll(":\\S+:", "");
-
+      
         // remove extra white spaces or tabs
         message = message.replaceAll("[ |\\t][ |\\t]+", " ");
         message = message.replaceAll("\\n[ |\\t]", "\n");
-
+        
+        // build onomatopoeias
+        message = OtherUtil.onomatopoeia(message);
+      
         if(message.isBlank())
             return;
-
+        
         if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())
         {
             try 
@@ -178,6 +181,8 @@ public class Listener extends ListenerAdapter
             bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
             Listener.requests++;
         }
+        // echo
+        //event.getChannel().sendMessage(message).queue();
     }
 
     private class EventTtsHandler implements AudioLoadResultHandler
