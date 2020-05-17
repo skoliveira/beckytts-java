@@ -85,7 +85,7 @@ public class AutoTtsCmd extends AdminCommand
             @Override
             protected void execute(CommandEvent event) {
                 String[] list = bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist();
-                String msg = "```" + "AutoTTS Blacklist:";
+                String msg = "```" + "AutoTTS Blacklist:" + (list.length==0 ? " (is empty)" : "");
                 for(String word : list)
                     msg += "\n   " + word;
                 msg += "```";

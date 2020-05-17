@@ -137,7 +137,9 @@ public class Listener extends ListenerAdapter
             return;
         
         String message = event.getMessage().getContentStripped();
-
+        
+        if(message.startsWith("@" + event.getGuild().getSelfMember().getEffectiveName()))
+            return;
         for(String prefix : bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist()) {
             if(message.startsWith(prefix))
                 return;
