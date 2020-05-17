@@ -85,7 +85,7 @@ public class AutoTtsCmd extends AdminCommand
             @Override
             protected void execute(CommandEvent event) {
                 String[] list = bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist();
-                String msg = "```" + "Blacklist:";
+                String msg = "```" + "AutoTTS Blacklist:";
                 for(String word : list)
                     msg += "\n   " + word;
                 msg += "```";
@@ -104,17 +104,19 @@ public class AutoTtsCmd extends AdminCommand
 
             @Override
             protected void execute(CommandEvent event) {
-                if(event.getArgs().isEmpty())
-                    return;
-
-                if(bot.getSettingsManager().getSettings(event.getGuild()).addWord(event.getArgs())) {
-                    event.replySuccess("`"+event.getArgs()+"` added to the blacklist");
-                    bot.getSettingsManager().writeSettings();
+                if(event.getArgs().isEmpty()) {
+                    event.replyError("Please include a prefix");
                     return;
                 }
-                
-                event.replyError("Couldn't add `"+event.getArgs()+"` to the blacklist"
-                        + "\nItem already exists in the list");
+
+                if(bot.getSettingsManager().getSettings(event.getGuild()).addWord(event.getArgs())) {
+                    event.replyError("Couldn't add `"+event.getArgs()+"` to the blacklist"
+                            + "\nItem already exists in the list");
+                    return;
+                }
+
+                event.replySuccess("`"+event.getArgs()+"` added to the blacklist");
+                bot.getSettingsManager().writeSettings();
             }
         }
 
@@ -130,17 +132,19 @@ public class AutoTtsCmd extends AdminCommand
 
             @Override
             protected void execute(CommandEvent event) {
-                if(event.getArgs().isEmpty())
-                    return;
-
-                if(bot.getSettingsManager().getSettings(event.getGuild()).removeWord(event.getArgs())) {
-                    event.replySuccess("`"+event.getArgs()+"` removed from the blacklist");
-                    bot.getSettingsManager().writeSettings();
+                if(event.getArgs().isEmpty()) {
+                    event.replyError("Please include a prefix");
                     return;
                 }
 
-                event.replyError("Couldn't remove `"+event.getArgs()+"` from the blacklist"
-                        + "\nItem not found in the list"+"```");
+                if(!bot.getSettingsManager().getSettings(event.getGuild()).removeWord(event.getArgs())) {
+                    event.replyError("Couldn't remove `"+event.getArgs()+"` from the blacklist"
+                            + "\nItem not found in the list"+"```");
+                    return;
+                }
+
+                event.replySuccess("`"+event.getArgs()+"` removed from the blacklist");
+                bot.getSettingsManager().writeSettings();
             }
 
         }

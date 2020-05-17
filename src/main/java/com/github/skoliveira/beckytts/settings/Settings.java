@@ -161,9 +161,12 @@ public class Settings implements GuildSettingsProvider
 
     public void setPrefix(String prefix)
     {
-        this.removeWord(this.prefix);
+        if(this.prefix!=null)
+            this.removeWord(this.prefix);
         this.prefix = prefix;
-        this.addWord(prefix);
+        if(prefix!=null)
+            this.addWord(prefix);
+        this.manager.writeSettings();
     }
 
     public boolean addAutoTtsUser(Member member) {
