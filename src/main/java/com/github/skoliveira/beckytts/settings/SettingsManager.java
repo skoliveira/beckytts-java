@@ -76,7 +76,7 @@ public class SettingsManager implements GuildSettingsManager<Object>
                 if(o.has("blacklist")) {
                     o.getJSONArray("blacklist").forEach((word) -> {
                         if(word!=null) {
-                            s.addWord(word.toString());
+                            s.addInBlacklist(word.toString());
                         }
                     });
                 }
@@ -117,7 +117,6 @@ public class SettingsManager implements GuildSettingsManager<Object>
 
     @Override
     public void shutdown() {
-        this.settings.forEach((l, s) -> { s.clearAutoTtsUsers(); });
         this.settings.clear();
     }
 

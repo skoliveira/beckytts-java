@@ -17,7 +17,9 @@ package com.github.skoliveira.beckytts.settings;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.jagrosh.jdautilities.command.GuildSettingsProvider;
@@ -43,6 +45,7 @@ public class Settings implements GuildSettingsProvider
     private String prefix;
     private final Set<Long> ttsUsers;
     private final Set<String> blacklist;
+    private final Map<String,String> slangs;
 
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean autoTtsMode, String prefix)
     {
@@ -76,6 +79,7 @@ public class Settings implements GuildSettingsProvider
         this.prefix = prefix;
         this.ttsUsers = new HashSet<>();
         this.blacklist = new HashSet<>();
+        this.slangs = new HashMap<>();
     }
 
     public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean autoTtsMode, String prefix)
@@ -89,6 +93,7 @@ public class Settings implements GuildSettingsProvider
         this.prefix = prefix;
         this.ttsUsers = new HashSet<>();
         this.blacklist = new HashSet<>();
+        this.slangs = new HashMap<>();
     }
 
     // Getters
@@ -162,10 +167,10 @@ public class Settings implements GuildSettingsProvider
     public void setPrefix(String prefix)
     {
         if(this.prefix!=null)
-            this.removeWord(this.prefix);
+            this.removeFromBlacklist(this.prefix);
         this.prefix = prefix;
         if(prefix!=null)
-            this.addWord(prefix);
+            this.addInBlacklist(prefix);
         this.manager.writeSettings();
     }
 
@@ -184,15 +189,11 @@ public class Settings implements GuildSettingsProvider
         return ttsUsers.contains(userid);
     }
 
-    public void clearAutoTtsUsers() {
-        ttsUsers.clear();
-    }
-
-    public boolean addWord(String word) {
+    public boolean addInBlacklist(String word) {
         return blacklist.add(word);
     }
 
-    public boolean removeWord(String word) {
+    public boolean removeFromBlacklist(String word) {
         return blacklist.remove(word);
     }
 
