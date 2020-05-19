@@ -58,7 +58,7 @@ public class gTTS {
     private String getSentence(String str, final char[] marks) {
         for(int i=str.length()-1; i>0; i--) {
             if(isMark(str.charAt(i), marks))
-                return str.substring(0, i);
+                return str.substring(0, i+1);
         }
         return str;
     }

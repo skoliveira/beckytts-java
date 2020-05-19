@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
  */
 public class SettingsCmd extends Command 
 {
-    private final static String EMOJI = "\uD83C\uDFA7"; // 🎧
+    private final static String EMOJI = "\uD83E\uDD16"; // 🤖
 
     public SettingsCmd(Bot bot)
     {
@@ -65,7 +65,7 @@ public class SettingsCmd extends Command
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
                         + " audio connections", null);
-        event.getChannel().sendMessage(builder.setEmbed(ebuilder.build()).build()).queue();
+        event.reply(builder.setEmbed(ebuilder.build()).build());
     }
 
 }

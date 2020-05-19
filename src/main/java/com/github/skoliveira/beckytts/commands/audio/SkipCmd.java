@@ -47,7 +47,7 @@ public class SkipCmd extends AudioCommand
         Member m = event.getGuild().getMemberById(requesterId);
         if(event.getAuthor().getIdLong()==requesterId || TTSRoleCommand.checkTTSPermission(event)) {
             event.replySuccess("Skipped **Text To Speech**"+(requesterId==0 ? "" : 
-                " (requested by "+(m==null ? "someone" : "**"+m.getNickname()+"**")+")"));
+                " (requested by "+(m==null ? "someone" : "**"+m.getEffectiveName()+"**")+")"));
             handler.stopAndClearUser(requesterId);
             event.getMessage().addReaction(BeckyTTS.THUMBSUP_EMOJI).queue();
             return;
