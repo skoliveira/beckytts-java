@@ -51,7 +51,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
-    protected static long requests;
+    public static long requests;
 
     public Listener(Bot bot)
     {
@@ -155,6 +155,22 @@ public class Listener extends ListenerAdapter
         // remove extra white spaces or tabs
         message = message.replaceAll("[ |\\t][ |\\t]+", " ");
         message = message.replaceAll("\\n[ |\\t]", "\n");
+        
+        if(settings.getSlangMode()) {
+            StringBuilder sb = new StringBuilder(message.length());
+            String[] array = message.split("\\s");
+            for(String e : array) {
+                String word = e.replaceAll("(\\p{L}+\\+|\\p{L}+).*", "$1");
+                if(settings.containsSlang(word)) {                
+                    sb.append(e.replaceAll("\\p{L}+\\+|\\p{L}+", settings.getSlangValue(word)));
+                }
+                else {
+                    sb.append(e);
+                }
+                sb.append(' ');
+            }
+            message = sb.toString();
+        }
         
         // build onomatopoeias
         message = OtherUtil.onomatopoeia(message);

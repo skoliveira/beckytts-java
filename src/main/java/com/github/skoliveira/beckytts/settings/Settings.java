@@ -17,11 +17,10 @@ package com.github.skoliveira.beckytts.settings;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import com.github.skoliveira.beckytts.tts.Slang;
 import com.jagrosh.jdautilities.command.GuildSettingsProvider;
 
 import net.dv8tion.jda.api.entities.Guild;
@@ -45,7 +44,8 @@ public class Settings implements GuildSettingsProvider
     private String prefix;
     private final Set<Long> ttsUsers;
     private final Set<String> blacklist;
-    private final Map<String,String> slangs;
+    private final Slang slangs;
+    private boolean slangMode;
 
     public Settings(SettingsManager manager, String textId, String voiceId, String roleId, int volume, boolean autoTtsMode, String prefix)
     {
@@ -79,7 +79,8 @@ public class Settings implements GuildSettingsProvider
         this.prefix = prefix;
         this.ttsUsers = new HashSet<>();
         this.blacklist = new HashSet<>();
-        this.slangs = new HashMap<>();
+        this.slangs = new Slang();
+        this.slangMode = true;
     }
 
     public Settings(SettingsManager manager, long textId, long voiceId, long roleId, int volume, boolean autoTtsMode, String prefix)
@@ -93,7 +94,8 @@ public class Settings implements GuildSettingsProvider
         this.prefix = prefix;
         this.ttsUsers = new HashSet<>();
         this.blacklist = new HashSet<>();
-        this.slangs = new HashMap<>();
+        this.slangs = new Slang();
+        this.slangMode = true;
     }
 
     // Getters
@@ -127,6 +129,19 @@ public class Settings implements GuildSettingsProvider
         return prefix;
     }
 
+    public boolean getSlangMode()
+    {
+        return slangMode;
+    }
+    
+    public boolean containsSlang(String key) {
+        return slangs.containsKey(key);
+    }
+    
+    public String getSlangValue(String key) {
+        return slangs.get(key);
+    }
+    
     @Override
     public Collection<String> getPrefixes()
     {
@@ -173,6 +188,11 @@ public class Settings implements GuildSettingsProvider
             this.addInBlacklist(prefix);
         this.manager.writeSettings();
     }
+    
+    public void setSlangMode(boolean mode)
+    {
+        this.autoTtsMode = mode;
+    }
 
     public boolean addAutoTtsUser(Member member) {
         Long userid = member == null ? null : member.getIdLong();
@@ -200,5 +220,5 @@ public class Settings implements GuildSettingsProvider
     public String[] getBlacklist() {
         return blacklist.toArray(new String[blacklist.size()]);
     }
-
+    
 }

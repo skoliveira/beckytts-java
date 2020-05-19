@@ -1,12 +1,14 @@
 package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import com.github.skoliveira.beckytts.Bot;
+import com.github.skoliveira.beckytts.Listener;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
-import com.github.skoliveira.beckytts.tts.GoogleTTS;
+import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
+import com.github.skoliveira.beckytts.utils.OtherUtil;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -32,9 +34,9 @@ public class TtsCmd extends TTSRoleCommand
     @Override
     public void doCommand(CommandEvent event) 
     {
+        Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
         if(event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
-            Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
             if(settings.getAutoTtsMode()) {
 	            if(settings.containsAutoTtsUser(event.getMember()))
 	            {
@@ -55,16 +57,41 @@ public class TtsCmd extends TTSRoleCommand
             event.reply(builder.toString());
             return;
         }
-        String args = event.getArgs();
-        String url = "";        
-        GoogleTTS gtts = new GoogleTTS();
-		try {
-		    gtts.init(args.replaceAll("\\s\\s+", " ").trim(), "pt", false, false);
-		    url = gtts.exec();   
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
-        bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new ResultHandler(event));
+        
+        String message = event.getArgs();
+        
+        // remove emojis
+        message = message.replaceAll(":\\S+:", "");
+      
+        // remove extra white spaces or tabs
+        message = message.replaceAll("[ |\\t][ |\\t]+", " ");
+        message = message.replaceAll("\\n[ |\\t]", "\n");
+        
+        if(settings.getSlangMode()) {
+            StringBuilder sb = new StringBuilder(message.length());
+            String[] array = message.split("\\s");
+            for(String e : array) {
+                String word = e.replaceAll("(\\p{L}+\\+|\\p{L}+).*", "$1");
+                if(settings.containsSlang(word)) {                
+                    sb.append(e.replaceAll("\\p{L}+\\+|\\p{L}+", settings.getSlangValue(word)));
+                }
+                else {
+                    sb.append(e);
+                }
+                sb.append(' ');
+            }
+            message = sb.toString();
+        }
+        
+        // build onomatopoeias
+        message = OtherUtil.onomatopoeia(message);
+        
+        gTTS tts = new gTTS();
+        String[] urls = tts.getTtsUrls(message);
+        for(String url : urls) {
+            bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new ResultHandler(event));
+            Listener.requests++;
+        }
     }
     
     private class ResultHandler implements AudioLoadResultHandler
