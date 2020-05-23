@@ -8,7 +8,8 @@ public class gTTS {
     private static final String GOOGLE_TTS_URL =
             "https://translate.google.com/translate_tts";
     private static final int MAX_SIZE = 200;
-    private static final char[] END_MARKS = {'.', '!', '?', '\n'};
+    private static final char[] PARAGRAPH_MARKS = {'\n'};
+    private static final char[] END_MARKS = {'.', '!', '?'};
     private static final char[] PAUSE_MARKS = {':', ';', ','};
     private static final char[] SPACE_MARKS = {' ', '\t'};
 
@@ -39,11 +40,14 @@ public class gTTS {
         String sentence;
         for(int i=0; i<text.length(); i+=sentence.length()) {
             if(i+MAX_SIZE < text.length()) {
-                sentence = getSentence(text.substring(i, i+MAX_SIZE), END_MARKS);
+                sentence = getSentence(text.substring(i, i+MAX_SIZE), PARAGRAPH_MARKS);
                 if(sentence.length() == MAX_SIZE) {
-                    sentence = getSentence(text.substring(i, i+MAX_SIZE), PAUSE_MARKS);
+                    sentence = getSentence(text.substring(i, i+MAX_SIZE), END_MARKS);
                     if(sentence.length() == MAX_SIZE) {
-                        sentence = getSentence(text.substring(i, i+MAX_SIZE), SPACE_MARKS);
+                        sentence = getSentence(text.substring(i, i+MAX_SIZE), PAUSE_MARKS);
+                        if(sentence.length() == MAX_SIZE) {
+                            sentence = getSentence(text.substring(i, i+MAX_SIZE), SPACE_MARKS);
+                        }
                     }
                 }
             }
@@ -73,8 +77,8 @@ public class gTTS {
 
     private String format(String str) {
         String s = str;
+        s = s.replaceAll("\\s", "+");
         s = s.replaceAll("%",   "%25");
-        s = s.replaceAll("\\s", "%20");
         s = s.replaceAll("\"",  "%22");
         s = s.replaceAll("#",   "%23");
         s = s.replaceAll("&",   "%26");

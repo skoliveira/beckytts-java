@@ -69,7 +69,7 @@ public class TtsCmd extends TTSRoleCommand
         
         if(settings.getSlangMode()) {
             StringBuilder sb = new StringBuilder(message.length());
-            String[] array = message.split("\\s");
+            String[] array = message.split(" |\\t");
             for(String e : array) {
                 String word = e.replaceAll("(\\p{L}+\\+|\\p{L}+).*", "$1");
                 if(settings.containsSlang(word)) {                
