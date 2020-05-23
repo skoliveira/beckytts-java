@@ -77,7 +77,6 @@ public class gTTS {
 
     private String format(String str) {
         String s = str;
-        s = s.replaceAll("\\s", "+");
         s = s.replaceAll("%",   "%25");
         s = s.replaceAll("\"",  "%22");
         s = s.replaceAll("#",   "%23");
@@ -91,6 +90,7 @@ public class gTTS {
         s = s.replaceAll("\\{", "%7B");
         s = s.replaceAll("\\|", "%7C");
         s = s.replaceAll("\\}", "%7D");
+        s = s.replaceAll("\\s", "+");
         return s;
     }
 

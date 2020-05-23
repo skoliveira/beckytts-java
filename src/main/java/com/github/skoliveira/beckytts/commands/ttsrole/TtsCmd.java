@@ -80,7 +80,7 @@ public class TtsCmd extends TTSRoleCommand
                 }
                 sb.append(' ');
             }
-            message = sb.toString();
+            message = sb.toString().trim();
         }
         
         // build onomatopoeias

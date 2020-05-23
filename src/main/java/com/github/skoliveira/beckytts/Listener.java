@@ -169,7 +169,7 @@ public class Listener extends ListenerAdapter
                 }
                 sb.append(' ');
             }
-            message = sb.toString();
+            message = sb.toString().trim();
         }
         
         // build onomatopoeias
@@ -196,6 +196,7 @@ public class Listener extends ListenerAdapter
         for(String url : urls) {
             bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
             Listener.requests++;
+            //event.getChannel().sendMessage(url).queue();
         }
         // echo
         //event.getChannel().sendMessage(message).queue();
