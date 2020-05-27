@@ -20,7 +20,10 @@ public class Slang extends HashMap<String,String> {
         this.put("fmz", "firmeza");
         this.put("ctz", "certeza");
         this.put("blz", "beleza");
+        this.put("tmj", "tamo junto");
+        this.put("dnv", "de novo");
         this.put("vc", "você");
+        this.put("vcs", "vocês");
         this.put("tdb", "tudo bem");
         this.put("td", "tudo");
         this.put("tb", "também");
@@ -34,6 +37,7 @@ public class Slang extends HashMap<String,String> {
         this.put("n", "não");
         this.put("ñ", "não");
         this.put("p", "para");
+        this.put("q", "que");
         this.put("s", "sim");
         this.put("ss", "sim sim");
         this.put("sla", "sei lá");
@@ -59,11 +63,14 @@ public class Slang extends HashMap<String,String> {
         this.put("pdp", "pode pá");
         this.put("psc", "para seu conhecimento");
         this.put("slx", "seu lixo");
+        this.put("krl", "caralho");
+        this.put("krlh", "caralho");
         this.put("crl", "caralho");
         this.put("crlh", "caralho");
         this.put("pqp", "puta que pariu");
         this.put("fdp", "filho da puta");
         this.put("vtnc", "vai tomar no cu");
+        this.put("tnc", "toma no cu");
         this.put("vtnsc", "vai tomar no seu cu");
         this.put("vsf", "vai se fuder");
         this.put("pnc", "pau no cu");
