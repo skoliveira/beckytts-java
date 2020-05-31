@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.entities.Guild;
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class SettingsManager implements GuildSettingsManager<Object>
+public class SettingsManager implements GuildSettingsManager<Settings>
 {
     private final HashMap<Long,Settings> settings;
 

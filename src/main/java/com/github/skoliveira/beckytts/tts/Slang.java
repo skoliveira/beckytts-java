@@ -13,6 +13,7 @@ public class Slang extends HashMap<String,String> {
         super();
         this.put("obg", "obrigado");
         this.put("dsclp", "desculpa");
+        this.put("dsclps", "desculpas");
         this.put("mds", "meu Deus");
         this.put("plmdds", "pelo amor de Deus");
         this.put("sdd", "saudade");
@@ -43,6 +44,7 @@ public class Slang extends HashMap<String,String> {
         this.put("sla", "sei lá");
         this.put("msm", "mesmo");
         this.put("vdd", "verdade");
+        this.put("vtd", "vontade");
         this.put("vms", "vamos");
         this.put("bjos", "beijos");
         this.put("bjs", "beijos");
