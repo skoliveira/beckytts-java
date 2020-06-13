@@ -1,5 +1,7 @@
 package com.github.skoliveira.beckytts.tts;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -13,11 +15,11 @@ public class gTTS {
     private static final char[] PAUSE_MARKS = {':', ';', ','};
     private static final char[] SPACE_MARKS = {' ', '\t'};
 
-    public String[] getTtsUrls(String text) {
+    public String[] getTtsUrls(String text) throws UnsupportedEncodingException {
         return getTtsUrls(text, "pt");
     }
 
-    public String[] getTtsUrls(String text, String lang) {
+    public String[] getTtsUrls(String text, String lang) throws UnsupportedEncodingException {
         if(text==null | text.isBlank())
             return null;
 
@@ -26,8 +28,8 @@ public class gTTS {
         while(litr.hasNext()) {
             String element = GOOGLE_TTS_URL + "?"
                     + "ie=" + "UTF-8"
+                    + "&q=" + URLEncoder.encode(litr.next(), "UTF-8")
                     + "&tl=" + lang
-                    + "&q=" + format(litr.next())
                     + "&client=" + "tw-ob";
             litr.set(element);
         }
@@ -75,6 +77,7 @@ public class gTTS {
         return false;
     }
 
+    /*
     private String format(String str) {
         String s = str;
         s = s.replaceAll("%",   "%25");
@@ -93,5 +96,6 @@ public class gTTS {
         s = s.replaceAll("\\s", "+");
         return s;
     }
+     */
 
 }
