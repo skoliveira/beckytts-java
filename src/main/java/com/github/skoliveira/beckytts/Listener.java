@@ -15,6 +15,7 @@
  */
 package com.github.skoliveira.beckytts;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -192,14 +193,17 @@ public class Listener extends ListenerAdapter
         }
 
         gTTS tts = new gTTS();
-        String[] urls = tts.getTtsUrls(message);
-        for(String url : urls) {
-            bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-            Listener.requests++;
-            //event.getChannel().sendMessage(url).queue();
+        String[] urls;
+        try {
+            urls = tts.getTtsUrls(message);
+            for(String url : urls) {
+                bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
+                Listener.requests++;
+            }
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        // echo
-        //event.getChannel().sendMessage(message).queue();
     }
 
     private class EventTtsHandler implements AudioLoadResultHandler
