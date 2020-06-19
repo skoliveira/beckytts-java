@@ -1,5 +1,7 @@
 package com.github.skoliveira.beckytts.commands.ttsrole;
 
+import java.io.UnsupportedEncodingException;
+
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.Listener;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
@@ -87,10 +89,16 @@ public class TtsCmd extends TTSRoleCommand
         message = OtherUtil.onomatopoeia(message);
         
         gTTS tts = new gTTS();
-        String[] urls = tts.getTtsUrls(message);
-        for(String url : urls) {
-            bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new ResultHandler(event));
-            Listener.requests++;
+        String[] urls;
+        try {
+            urls = tts.getTtsUrls(message);
+            for(String url : urls) {
+                bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new ResultHandler(event));
+                Listener.requests++;
+            }
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
     
