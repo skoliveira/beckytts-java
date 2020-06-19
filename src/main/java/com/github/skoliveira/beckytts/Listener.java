@@ -150,7 +150,7 @@ public class Listener extends ListenerAdapter
         message = message.replaceAll(regexUrl, "");
 
         // remove emojis
-        message = message.replaceAll(":\\S+:", "");
+        message = message.replaceAll(":(\\S+):", "$1");
       
         // remove extra white spaces or tabs
         message = message.replaceAll("[ |\\t][ |\\t]+", " ");
