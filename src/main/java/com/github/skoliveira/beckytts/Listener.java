@@ -26,6 +26,7 @@ import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.tts.gTTS;
+import com.github.skoliveira.beckytts.utils.MessageUtil;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -52,12 +53,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
-    public static long requests;
 
     public Listener(Bot bot)
     {
         this.bot = bot;
-        Listener.requests = 0;
     }
 
     @Override
@@ -137,25 +136,19 @@ public class Listener extends ListenerAdapter
         if(!settings.containsAutoTtsUser(event.getMember()))
             return;
         
-        String message = event.getMessage().getContentStripped();
+        String msg = event.getMessage().getContentRaw();
         
-        if(message.startsWith("@" + event.getGuild().getSelfMember().getEffectiveName()))
+        if(msg.matches("^<@!?" + event.getJDA().getSelfUser().getId() + ">[\\S\\s]*"))
             return;
         for(String prefix : bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist()) {
-            if(message.startsWith(prefix))
+            if(msg.startsWith(prefix))
                 return;
         }
         
-        // remove links
-        String regexUrl = "((http:\\/\\/|https:\\/\\/)?(www.)?(([a-zA-Z0-9-]){2,}\\.){1,4}([a-zA-Z]){2,6}(\\/([a-zA-Z-_\\/\\.0-9#:?=&;,]*)?)?)";
-        message = message.replaceAll(regexUrl, "");
-
-        // remove emojis
-        message = message.replaceAll(":(\\S+):", "$1");
-      
-        // remove extra white spaces or tabs
-        message = message.replaceAll("[ |\\t][ |\\t]+", " ");
-        message = message.replaceAll("\\n[ |\\t]", "\n");
+        String message = MessageUtil.process(event.getMessage());
+        
+        if(message.isBlank())
+            return;
         
         if(settings.getSlangMode()) {
             StringBuilder sb = new StringBuilder(message.length());
@@ -174,10 +167,7 @@ public class Listener extends ListenerAdapter
         }
         
         // build onomatopoeias
-        message = OtherUtil.onomatopoeia(message);
-      
-        if(message.isBlank())
-            return;
+        message = MessageUtil.onomatopoeia(message);
         
         if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())
         {
@@ -198,7 +188,7 @@ public class Listener extends ListenerAdapter
             urls = tts.getTtsUrls(message);
             for(String url : urls) {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-                Listener.requests++;
+                //event.getChannel().sendMessage(message).queue();
             }
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
@@ -274,7 +264,7 @@ public class Listener extends ListenerAdapter
         {
             if(throwable.severity==Severity.COMMON) {
                 if(throwable.getMessage().contains("URL"))
-                    event.getChannel().sendMessage(bot.getConfig().getError()+" Error request: "+Listener.requests+". TTS service unavailable.").queue();
+                    event.getChannel().sendMessage(bot.getConfig().getError()+" Error TTS service unavailable.").queue();
                 else
                     event.getChannel().sendMessage(bot.getConfig().getError()+" Error loading: "+throwable.getMessage()).queue();
             } else {

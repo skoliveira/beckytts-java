@@ -204,37 +204,4 @@ public class OtherUtil
             return null;
         }
     }
-
-    private static char[] vowels = {'a','ã','e','i','o','u'};
-    private static boolean isOno(String s) {
-        if(s.length() < 3)
-            return false;
-
-        for(char v : vowels) {
-            if(v == s.charAt(s.length()-3) && v == s.charAt(s.length()-2) && v == s.charAt(s.length()-1)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public static String onomatopoeia(String fun) {
-        if(fun.length() < 3)
-            return fun;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(fun.substring(0,2));
-        for(int i=2; i<fun.length(); i++) {
-            if(isOno(fun.substring(i-2,i+1))) {
-                if(sb.charAt(sb.length()-2) != ' ' ) {
-                    sb.insert(sb.length()-1, ' ');
-                }
-                sb.append(' ').append(fun.charAt(i));
-            }
-            else {
-                sb.append(fun.charAt(i));
-            }
-        }
-        return sb.toString();
-    }
 }

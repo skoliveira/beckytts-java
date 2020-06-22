@@ -3,14 +3,13 @@ package com.github.skoliveira.beckytts.commands.ttsrole;
 import java.io.UnsupportedEncodingException;
 
 import com.github.skoliveira.beckytts.Bot;
-import com.github.skoliveira.beckytts.Listener;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
-import com.github.skoliveira.beckytts.utils.OtherUtil;
+import com.github.skoliveira.beckytts.utils.MessageUtil;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -60,14 +59,10 @@ public class TtsCmd extends TTSRoleCommand
             return;
         }
         
-        String message = event.getArgs();
+        String message = MessageUtil.process(event.getArgs(), event.getMessage());
         
-        // remove emojis
-        message = message.replaceAll(":\\S+:", "");
-      
-        // remove extra white spaces or tabs
-        message = message.replaceAll("[ |\\t][ |\\t]+", " ");
-        message = message.replaceAll("\\n[ |\\t]", "\n");
+        if(message.isBlank())
+            return;
         
         if(settings.getSlangMode()) {
             StringBuilder sb = new StringBuilder(message.length());
@@ -86,7 +81,7 @@ public class TtsCmd extends TTSRoleCommand
         }
         
         // build onomatopoeias
-        message = OtherUtil.onomatopoeia(message);
+        message = MessageUtil.onomatopoeia(message);
         
         gTTS tts = new gTTS();
         String[] urls;
@@ -94,7 +89,6 @@ public class TtsCmd extends TTSRoleCommand
             urls = tts.getTtsUrls(message);
             for(String url : urls) {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new ResultHandler(event));
-                Listener.requests++;
             }
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
