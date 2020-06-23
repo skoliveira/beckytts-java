@@ -19,8 +19,10 @@ public class MessageUtil {
                     "@" + m.getGuild().getRoleById(i.getIdLong()).getName());
         }
         for(IMentionable i : m.getMentions(Message.MentionType.USER)) {
-            message = message.replaceAll("<@!?"+i.getId()+">",
-                    m.getGuild().getMemberById(i.getIdLong()).getEffectiveName());
+            String effectiveName = m.getGuild().retrieveMemberById(i.getIdLong())
+                    .complete().getEffectiveName();
+            message = message.replaceAll("<@!?"+i.getId()+">", 
+                    effectiveName != null ? effectiveName : "");
         }
         return message;
     }
