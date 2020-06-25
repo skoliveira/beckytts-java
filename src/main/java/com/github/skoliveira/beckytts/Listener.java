@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.settings.Settings;
+import com.github.skoliveira.beckytts.tts.MessageHearing;
 import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.MessageUtil;
 import com.github.skoliveira.beckytts.utils.OtherUtil;
@@ -135,21 +136,21 @@ public class Listener extends ListenerAdapter
 
         if(!settings.containsAutoTtsUser(event.getMember()))
             return;
-        
+
         String msg = event.getMessage().getContentRaw();
-        
+
         if(msg.matches("^<@!?" + event.getJDA().getSelfUser().getId() + ">[\\S\\s]*"))
             return;
         for(String prefix : bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist()) {
             if(msg.startsWith(prefix))
                 return;
         }
-        
-        String message = MessageUtil.process(event.getMessage());
-        
+
+        String message = new MessageHearing(event.getMessage()).getContentHearing();
+
         if(message.isBlank())
             return;
-        
+
         if(settings.getSlangMode()) {
             StringBuilder sb = new StringBuilder(message.length());
             String[] array = message.split(" |\\t");
@@ -165,10 +166,10 @@ public class Listener extends ListenerAdapter
             }
             message = sb.toString().trim();
         }
-        
+
         // build onomatopoeias
         message = MessageUtil.onomatopoeia(message);
-        
+
         if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())
         {
             try 
@@ -188,7 +189,7 @@ public class Listener extends ListenerAdapter
             urls = tts.getTtsUrls(message);
             for(String url : urls) {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-                //event.getChannel().sendMessage(message).queue();
+                //event.getChannel().sendMessageFormat("%s", message).queue();
             }
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block

@@ -7,6 +7,7 @@ import com.github.skoliveira.beckytts.audio.AudioHandler;
 import com.github.skoliveira.beckytts.audio.QueuedTrack;
 import com.github.skoliveira.beckytts.commands.TTSRoleCommand;
 import com.github.skoliveira.beckytts.settings.Settings;
+import com.github.skoliveira.beckytts.tts.MessageHearing;
 import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
 import com.github.skoliveira.beckytts.utils.MessageUtil;
@@ -59,7 +60,7 @@ public class TtsCmd extends TTSRoleCommand
             return;
         }
         
-        String message = MessageUtil.process(event.getArgs(), event.getMessage());
+        String message = new MessageHearing(event.getMessage()).getContentHearing(event.getArgs());
         
         if(message.isBlank())
             return;
