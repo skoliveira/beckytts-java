@@ -3,6 +3,8 @@ package com.github.skoliveira.beckytts.tts;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.skoliveira.beckytts.utils.MessageUtil;
+
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -53,13 +55,7 @@ public class MessageHearing {
                 return contentHearing;
             String tmp = getContentHearing(message.getContentRaw());
 
-            // remove links
-            String regexUrl = "(https?:\\/\\/)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,4}\\b([-a-zA-Z0-9@:%_\\+;.~#?&\\/=]*)";
-            tmp = tmp.replaceAll(regexUrl, "");
-            
-            // remove extra white spaces or tabs
-            tmp = tmp.replaceAll("[ |\\t][ |\\t]+", " ");
-            tmp = tmp.replaceAll("\\n[ |\\t]", "\n");
+            tmp = MessageUtil.removeLinks(tmp);
 
             return contentHearing = tmp;
         }
@@ -73,7 +69,7 @@ public class MessageHearing {
             if(contentHearing != null)
                 return contentHearing;
 
-            // all IMentionable entities will be resolved and Markdowns removed
+            // all IMentionable entities will be resolved and markdown sanitize
             String tmp = MarkdownSanitizer.sanitize(getContentResolved(content));
 
             return contentHearing = tmp;
