@@ -1,6 +1,7 @@
 package com.github.skoliveira.beckytts.commands.ttsrole;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
 
 import com.github.skoliveira.beckytts.Bot;
 import com.github.skoliveira.beckytts.audio.AudioHandler;
@@ -19,9 +20,12 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+
 public class TtsCmd extends TTSRoleCommand
-{   
-    
+{
+
     public TtsCmd(Bot bot)
     {
         super(bot);
@@ -40,17 +44,54 @@ public class TtsCmd extends TTSRoleCommand
         if(event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
             if(settings.getAutoTtsMode()) {
-	            if(settings.containsAutoTtsUser(event.getMember()))
-	            {
-	            	settings.removeAutoTtsUser(event.getMember());
-	            	event.replySuccess(event.getMember().getAsMention() + " is no longer an autotts user");
-	            }
-	            else 
-	            {
-	            	settings.addAutoTtsUser(event.getMember());
-	            	event.replySuccess(event.getMember().getAsMention() + " is now an autotts user");
-	            }
-	            return;
+                if(settings.containsAutoTtsUser(event.getMember()))
+                {
+                    settings.removeAutoTtsUser(event.getMember());
+                    event.replySuccess(event.getMember().getAsMention() + " is no longer an autotts user");
+                }
+                else 
+                {
+                    event.reply("Click on the flag to choose your language:", m -> {
+                        m.addReaction("🇺🇸").queue();
+                        m.addReaction("🇬🇧").queue();
+                        m.addReaction("🇦🇺").queue();
+                        m.addReaction("🇧🇷").queue();
+                        m.addReaction("🇵🇹").queue();
+                        m.addReaction("🇪🇸").queue();
+                        m.addReaction("🇫🇷").queue();
+                        m.addReaction("🇩🇪").queue();
+                        m.addReaction("🇮🇹").queue();
+                        m.addReaction("🇷🇺").queue();
+                        m.addReaction("🇯🇵").queue();
+                        m.addReaction("🇨🇳").queue();
+                        m.addReaction("🇰🇷").queue();
+                        bot.getWaiter().waitForEvent(MessageReactionAddEvent.class,
+                                e -> {
+                                    if(!e.getMessageId().equals(m.getId()))
+                                        return false;
+                                    if(!("🇧🇷".equals(e.getReactionEmote().getEmoji())))
+                                        return false;
+                                    return e.getUser().equals(event.getAuthor());
+                                },
+                                e -> {
+                                    ReactionEmote emote = e.getReactionEmote();
+                                    switch(emote.getEmoji())
+                                    {
+                                        case "🇧🇷":
+                                            break;
+                                    }
+                                    settings.addAutoTtsUser(event.getMember());
+                                    event.replySuccess(event.getMember().getAsMention() + " is now an autotts user");
+                                    m.delete().queueAfter(10, TimeUnit.SECONDS);
+                                },
+                                1, TimeUnit.MINUTES,
+                                () -> {
+                                    event.replyError("Sorry, you took too long.");
+                                    m.delete().queue();
+                                });
+                    });
+                }
+                return;
             }
             StringBuilder builder = new StringBuilder(event.getClient().getWarning()+" TTS Command:\n");
             builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speech>` - plays the text to speech");
@@ -59,12 +100,12 @@ public class TtsCmd extends TTSRoleCommand
             event.reply(builder.toString());
             return;
         }
-        
+
         String message = new MessageHearing(event.getMessage()).getContentHearing(event.getArgs());
-        
+
         if(message.isBlank())
             return;
-        
+
         if(settings.getSlangMode()) {
             StringBuilder sb = new StringBuilder(message.length());
             String[] array = message.split(" |\\t");
@@ -80,10 +121,10 @@ public class TtsCmd extends TTSRoleCommand
             }
             message = sb.toString().trim();
         }
-        
+
         // build onomatopoeias
         message = MessageUtil.onomatopoeia(message);
-        
+
         gTTS tts = new gTTS();
         String[] urls;
         try {
@@ -96,16 +137,16 @@ public class TtsCmd extends TTSRoleCommand
             e.printStackTrace();
         }
     }
-    
+
     private class ResultHandler implements AudioLoadResultHandler
     {
         private final CommandEvent event;
-        
+
         private ResultHandler(CommandEvent event)
         {
             this.event = event;
         }
-        
+
         private void loadSingle(AudioTrack track, AudioPlaylist playlist)
         {
             if(bot.getConfig().isTooLong(track))
@@ -114,7 +155,7 @@ public class TtsCmd extends TTSRoleCommand
             AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();
             handler.addTrack(new QueuedTrack(track, event.getAuthor()));
         }
-        
+
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
         {
             int[] count = {0};
@@ -128,7 +169,7 @@ public class TtsCmd extends TTSRoleCommand
             });
             return count[0];
         }
-        
+
         @Override
         public void trackLoaded(AudioTrack track)
         {
@@ -157,7 +198,7 @@ public class TtsCmd extends TTSRoleCommand
         @Override
         public void noMatches()
         {
-        	event.reply(FormatUtil.filter(event.getClient().getWarning()+" No results found for `"+event.getArgs()+"`."));
+            event.reply(FormatUtil.filter(event.getClient().getWarning()+" No results found for `"+event.getArgs()+"`."));
         }
 
         @Override
@@ -166,7 +207,7 @@ public class TtsCmd extends TTSRoleCommand
             if(throwable.severity==Severity.COMMON)
                 event.reply(event.getClient().getError()+" Error loading: "+throwable.getMessage());
             else
-            	event.reply(event.getClient().getError()+" Error loading track.");
+                event.reply(event.getClient().getError()+" Error loading track.");
         }
     }
 }
