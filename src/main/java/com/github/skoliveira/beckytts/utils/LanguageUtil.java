@@ -1,246 +1,323 @@
 package com.github.skoliveira.beckytts.utils;
 
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 public class LanguageUtil {
 
-    // Arabic
-    public static final String FLAG_DZ = "U+1F1E9U+1F1FF"; // 🇩🇿 Algeria
-    public static final String FLAG_BH = "U+1F1E7U+1F1ED"; // 🇧🇭 Bahrain
-    public static final String FLAG_EG = "U+1F1EAU+1F1EC"; // 🇪🇬 Egypt
-    public static final String FLAG_IQ = "U+1F1EEU+1F1F6"; // 🇮🇶 Iraq
-    public static final String FLAG_JO = "U+1F1EFU+1F1F4"; // 🇯🇴 Jordan
-    public static final String FLAG_KW = "U+1F1F0U+1F1FC"; // 🇰🇼 Kuwait
-    public static final String FLAG_LB = "U+1F1F1U+1F1E7"; // 🇱🇧 Lebanon
-    public static final String FLAG_LY = "U+1F1F1U+1F1FE"; // 🇱🇾 Libya
-    public static final String FLAG_MR = "U+1F1F2U+1F1F7"; // 🇲🇷 Mauritania
-    public static final String FLAG_MA = "U+1F1F2U+1F1E6"; // 🇲🇦 Morocco
-    public static final String FLAG_OM = "U+1F1F4U+1F1F2"; // 🇴🇲 Oman
-    public static final String FLAG_PS = "U+1F1F5U+1F1F8"; // 🇵🇸 Palestinian Territory
-    public static final String FLAG_QA = "U+1F1F6U+1F1E6"; // 🇶🇦 Qatar
-    public static final String FLAG_SA = "U+1F1F8U+1F1E6"; // 🇸🇦 Saudi Arabia
-    public static final String FLAG_SD = "U+1F1F8U+1F1E9"; // 🇸🇩 Sudan
-    public static final String FLAG_SY = "U+1F1F8U+1F1FE"; // 🇸🇾 Syrian Arab Republic
-    public static final String FLAG_TN = "U+1F1F9U+1F1F3"; // 🇹🇳 Tunisia
-    public static final String FLAG_AE = "U+1F1E6U+1F1EA"; // 🇦🇪 United Arab Emirates
-    public static final String FLAG_YE = "U+1F1E8U+1F1F3"; // 🇾🇪 Yemen
-    public static final String FLAG_TD = "U+1F1F9U+1F1E9"; // 🇹🇩 Chad
+    // Data extracted from http://download.geonames.org/export/dump/countryInfo.txt
+    // 2020/06/28
+    private enum DefaultLanguage {
+        AD("ca"), // Andorra
+        AE("ar"), // United Arab Emirates
+        AF("fa"), // Afghanistan
+        AG("en"), // Antigua and Barbuda
+        AI("en"), // Anguilla
+        AL("sq"), // Albania
+        AM("hy"), // Armenia
+        AN("nl"), // Netherlands Antilles
+        AO("pt"), // Angola 
+        AR("es"), // Argentina
+        AS("en"), // American Samoa
+        AT("de"), // Austria
+        AU("en"), // Australia
+        AW("nl"), // Aruba
+        AX("sv"), // Aland Islands
+        AZ("az"), // Azerbaijan
+        BA("bs"), // Bosnia and Herzegovina
+        BB("en"), // Barbados
+        BD("bn"), // Bangladesh
+        BE("nl"), // Belgium
+        BF("fr"), // Burkina Faso
+        BG("bg"), // Bulgaria
+        BH("ar"), // Bahrain
+        BI("fr"), // Burundi
+        BJ("fr"), // Benin
+        BL("fr"), // Saint Barthelemy
+        BM("en"), // Bermuda
+        BN("ms"), // Brunei
+        BO("es"), // Bolivia
+        BQ("nl"), // Bonaire, Saint Eustatius and Saba 
+        BR("pt"), // Brazil
+        BS("en"), // Bahamas
+        BT("dz"), // Bhutan 
+        BW("en"), // Botswana
+        BY("be"), // Belarus
+        BZ("en"), // Belize
+        CA("en"), // Canada
+        CC("ms"), // Cocos Islands
+        CD("fr"), // Democratic Republic of the Congo
+        CF("fr"), // Central African Republic
+        CG("fr"), // Republic of the Congo
+        CH("de"), // Switzerland
+        CI("fr"), // Ivory Coast
+        CK("en"), // Cook Islands
+        CL("es"), // Chile
+        CM("en"), // Cameroon
+        CN("zh"), // China
+        CO("es"), // Colombia
+        CS("cu"), // Serbia and Montenegro
+        CR("es"), // Costa Rica
+        CU("es"), // Cuba
+        CV("pt"), // Cabo Verde
+        CW("nl"), // Curacao
+        CX("en"), // Christmas Island
+        CY("el"), // Cyprus
+        CZ("cs"), // Czechia
+        DE("de"), // Germany
+        DJ("fr"), // Djibouti
+        DK("da"), // Denmark
+        DM("en"), // Dominica
+        DO("es"), // Dominican Republic
+        DZ("ar"), // Algeria
+        EC("es"), // Ecuador
+        EE("et"), // Estonia
+        EG("ar"), // Egypt
+        EH("ar"), // Western Sahara
+        ER("aa"), // Eritrea
+        ES("es"), // Spain
+        ET("am"), // Ethiopia
+        FI("fi"), // Finland
+        FJ("en"), // Fiji
+        FK("en"), // Falkland Islands
+        FM("en"), // Micronesia
+        FO("fo"), // Faroe Islands
+        FR("fr"), // France
+        GA("fr"), // Gabon
+        GB("en"), // United Kingdom
+        GD("en"), // Grenada
+        GE("ka"), // Georgia
+        GF("fr"), // French Guiana
+        GG("en"), // Guernsey
+        GH("en"), // Ghana
+        GI("en"), // Gibraltar
+        GL("kl"), // Greenland
+        GM("en"), // Gambia
+        GN("fr"), // Guinea
+        GP("fr"), // Guadeloupe
+        GQ("es"), // Equatorial Guinea
+        GR("el"), // Greece
+        GS("en"), // South Georgia and the South Sandwich Islands
+        GT("es"), // Guatemala
+        GU("en"), // Guam
+        GW("pt"), // Guinea-Bissau
+        GY("en"), // Guyana
+        HK("zh"), // Hong Kong
+        HN("es"), // Honduras
+        HR("hr"), // Croatia
+        HT("ht"), // Haiti
+        HU("hu"), // Hungary
+        ID("id"), // Indonesia
+        IE("en"), // Ireland
+        IL("he"), // Israel
+        IM("en"), // Isle of Man
+        IN("en"), // India
+        IO("en"), // British Indian Ocean Territory
+        IQ("ar"), // Iraq
+        IR("fa"), // Iran
+        IS("is"), // Iceland
+        IT("it"), // Italy
+        JE("en"), // Jersey
+        JM("en"), // Jamaica
+        JO("ar"), // Jordan
+        JP("ja"), // Japan
+        KE("en"), // Kenya
+        KG("ky"), // Kyrgyzstan
+        KH("km"), // Cambodia
+        KI("en"), // Kiribati
+        KM("ar"), // Comoros
+        KN("en"), // Saint Kitts and Nevis
+        KP("ko"), // North Korea
+        KR("ko"), // South Korea
+        XK("sq"), // Kosovo
+        KW("ar"), // Kuwait
+        KY("en"), // Cayman Islands
+        KZ("kk"), // Kazakhstan
+        LA("lo"), // Laos
+        LB("ar"), // Lebanon
+        LC("en"), // Saint Lucia
+        LI("de"), // Liechtenstein
+        LK("si"), // Sri Lanka
+        LR("en"), // Liberia
+        LS("en"), // Lesotho
+        LT("lt"), // Lithuania
+        LU("lb"), // Luxembourg
+        LV("lv"), // Latvia
+        LY("ar"), // Libya
+        MA("ar"), // Morocco
+        MC("fr"), // Monaco
+        MD("ro"), // Moldova
+        ME("sr"), // Montenegro
+        MF("fr"), // Saint Martin
+        MG("fr"), // Madagascar
+        MH("mh"), // Marshall Islands
+        MK("mk"), // North Macedonia
+        ML("fr"), // Mali
+        MM("my"), // Myanmar
+        MN("mn"), // Mongolia
+        MO("zh"), // Macao
+        MP("fil"), // Northern Mariana Islands
+        MQ("fr"), // Martinique
+        MR("ar"), // Mauritania
+        MS("en"), // Montserrat
+        MT("mt"), // Malta
+        MU("en"), // Mauritius
+        MV("dv"), // Maldives
+        MW("ny"), // Malawi
+        MX("es"), // Mexico
+        MY("ms"), // Malaysia
+        MZ("pt"), // Mozambique
+        NA("en"), // Namibia
+        NC("fr"), // New Caledonia
+        NE("fr"), // Niger
+        NF("en"), // Norfolk Island
+        NG("en"), // Nigeria
+        NI("es"), // Nicaragua
+        NL("nl"), // Netherlands
+        NO("no"), // Norway
+        NP("ne"), // Nepal
+        NR("na"), // Nauru
+        NU("niu"), // Niue
+        NZ("en"), // New Zealand
+        OM("ar"), // Oman
+        PA("es"), // Panama
+        PE("es"), // Peru
+        PF("fr"), // French Polynesia
+        PG("en"), // Papua New Guinea
+        PH("tl"), // Philippines
+        PK("ur"), // Pakistan
+        PL("pl"), // Poland
+        PM("fr"), // Saint Pierre and Miquelon
+        PN("en"), // Pitcairn
+        PR("en"), // Puerto Rico
+        PS("ar"), // Palestinian Territory
+        PT("pt"), // Portugal
+        PW("pau"), // Palau
+        PY("es"), // Paraguay
+        QA("ar"), // Qatar
+        RE("fr"), // Reunion
+        RO("ro"), // Romania
+        RS("sr"), // Serbia
+        RU("ru"), // Russia
+        RW("rw"), // Rwanda
+        SA("ar"), // Saudi Arabia
+        SB("en"), // Solomon Islands
+        SC("en"), // Seychelles
+        SD("ar"), // Sudan
+        SS("en"), // South Sudan
+        SE("sv"), // Sweden
+        SG("cmn"), // Singapore
+        SH("en"), // Saint Helena
+        SI("sl"), // Slovenia
+        SJ("no"), // Svalbard and Jan Mayen
+        SK("sk"), // Slovakia
+        SL("en"), // Sierra Leone
+        SM("it"), // San Marino
+        SN("fr"), // Senegal
+        SO("so"), // Somalia
+        SR("nl"), // Suriname
+        ST("pt"), // Sao Tome and Principe
+        SV("es"), // El Salvador
+        SX("nl"), // Sint Maarten
+        SY("ar"), // Syria
+        SZ("en"), // Eswatini
+        TC("en"), // Turks and Caicos Islands
+        TD("fr"), // Chad
+        TF("fr"), // French Southern Territories
+        TG("fr"), // Togo
+        TH("th"), // Thailand
+        TJ("tg"), // Tajikistan
+        TK("tkl"), // Tokelau
+        TL("tet"), // Timor Leste
+        TM("tk"), // Turkmenistan
+        TN("ar"), // Tunisia
+        TO("to"), // Tonga
+        TR("tr"), // Turkey
+        TT("en"), // Trinidad and Tobago
+        TV("tvl"), // Tuvalu
+        TW("zh"), // Taiwan
+        TZ("sw"), // Tanzania
+        UA("uk"), // Ukraine
+        UG("en"), // Uganda
+        UM("en"), // United States Minor Outlying Islands
+        US("en"), // United States
+        UY("es"), // Uruguay
+        UZ("uz"), // Uzbekistan
+        VA("la"), // Vatican
+        VC("en"), // Saint Vincent and the Grenadines
+        VE("es"), // Venezuela
+        VG("en"), // British Virgin Islands
+        VI("en"), // U.S. Virgin Islands
+        VN("vi"), // Vietnam
+        VU("bi"), // Vanuatu
+        WF("wls"), // Wallis and Futuna
+        WS("sm"), // Samoa
+        YE("ar"), // Yemen
+        YT("fr"), // Mayotte
+        ZA("zu"), // South Africa
+        ZM("en"), // Zambia
+        ZW("en"); // Zimbabwe
 
-    // Chinese
-    public static final String FLAG_CN = "U+1F1FEU+1F1EA"; // 🇨🇳 China
-    public static final String FLAG_TW = "U+1F1F9U+1F1FC"; // 🇹🇼 Taiwan
-    public static final String FLAG_MO = "U+1F1F2U+1F1F4"; // 🇲🇴 Macao
-    public static final String FLAG_HK = "U+1F1EDU+1F1F0"; // 🇭🇰 Hong Kong
+        private final String language;
 
-    // Czech
-    public static final String FLAG_CZ = "U+1F1E8U+1F1FF"; // 🇨🇿 Czech Republic
+        DefaultLanguage(String language) {
+            this.language = language;
+        }
+        
+        public String getLanguage() {
+            return this.language;
+        }
 
-    // Danish
-    public static final String FLAG_DK = "U+1F1E9U+1F1F0"; // 🇩🇰 Denmark
-    public static final String FLAG_GL = "U+1F1ECU+1F1F1"; // 🇬🇱 Greenland
-    public static final String FLAG_FO = "U+1F1EBU+1F1F4"; // 🇫🇴 Faroe Islands
+    }
 
-    // Dutch
-    public static final String FLAG_NL = "U+1F1F3U+1F1F1"; // 🇳🇱 Netherlands
-    public static final String FLAG_SR = "U+1F1F8U+1F1F7"; // 🇸🇷 Suriname
-    public static final String FLAG_SX = "U+1F1F8U+1F1FD"; // 🇸🇽 Sint Maarten
+    private static final int FLAG_SEQUENCE_BASE = 0x1F1A5;
 
-    // Estonian
-    public static final String FLAG_EE = "U+1F1EAU+1F1EA"; // 🇪🇪 Estonia
+    public static String getAlpha2FromFlag(String flag) {
+        return flag.codePoints()
+                .mapToObj(code -> String.valueOf(Character.toChars(code - FLAG_SEQUENCE_BASE)))
+                .collect(Collectors.joining());
+    }
 
-    // Filipino
-    public static final String FLAG_PH = "U+1F1F5U+1F1ED"; // 🇵🇭 Philippines
+    public static String getFlagFromAlpha2(String alpha2) {
+        return alpha2.codePoints()
+                .mapToObj(code -> String.valueOf(Character.toChars(FLAG_SEQUENCE_BASE + code)))
+                .collect(Collectors.joining());
+    }
 
-    // Finnish
-    public static final String FLAG_FI = "U+1F1EBU+1F1EE"; // 🇫🇮 Finland
+    public static boolean isISOCountryFlag(String flag) {
+        for(String alpha2 : Locale.getISOCountries(Locale.IsoCountryCode.PART1_ALPHA2)) {
+            if(getFlagFromAlpha2(alpha2).equals(flag))
+                return true;
+        }
+        return false;
+    }
 
-    // French
-    public static final String FLAG_BJ = "U+1F1E7U+1F1EF"; // 🇧🇯 Benin
-    public static final String FLAG_BF = "U+1F1E7U+1F1EB"; // 🇧🇫 Burkina Faso
-    public static final String FLAG_CM = "U+1F1E8U+1F1F2"; // 🇨🇲 Cameroon
-    public static final String FLAG_CF = "U+1F1E8U+1F1EB"; // 🇨🇫 Central African Republic
-    public static final String FLAG_CG = "U+1F1E8U+1F1EC"; // 🇨🇬 Republic of the Congo
-    public static final String FLAG_CD = "U+1F1E8U+1F1E9"; // 🇨🇩 Democratic Republic of the Congo
-    public static final String FLAG_DJ = "U+1F1E9U+1F1EF"; // 🇩🇯 Djibouti
-    public static final String FLAG_FR = "U+1F1EBU+1F1F7"; // 🇫🇷 France
-    public static final String FLAG_GA = "U+1F1ECU+1F1E6"; // 🇬🇦 Gabon
-    public static final String FLAG_GN = "U+1F1ECU+1F1F3"; // 🇬🇳 Guinea
-    public static final String FLAG_HT = "U+1F1EDU+1F1F9"; // 🇭🇹 Haiti
-    public static final String FLAG_CI = "U+1F1E8U+1F1EE"; // 🇨🇮 Côte D'Ivoire
-    public static final String FLAG_MG = "U+1F1F2U+1F1EC"; // 🇲🇬 Madagascar
-    public static final String FLAG_ML = "U+1F1F2U+1F1F1"; // 🇲🇱 Mali
-    public static final String FLAG_MC = "U+1F1F2U+1F1E8"; // 🇲🇨 Monaco
-    public static final String FLAG_NE = "U+1F1F3U+1F1EA"; // 🇳🇪 Niger
-    public static final String FLAG_SN = "U+1F1F8U+1F1F3"; // 🇸🇳 Senegal
-    public static final String FLAG_TG = "U+1F1F9U+1F1EC"; // 🇹🇬 Togo
-    public static final String FLAG_PF = "U+1F1F5U+1F1EB"; // 🇵🇫 French Polynesia
-    public static final String FLAG_NC = "U+1F1F3U+1F1E8"; // 🇳🇨 New Caledonia
-    public static final String FLAG_BL = "U+1F1E7U+1F1F1"; // 🇧🇱 Saint Barthélemy
-    public static final String FLAG_MF = "U+1F1F2U+1F1EB"; // 🇲🇫 Saint Martin
-    public static final String FLAG_PM = "U+1F1F5U+1F1F2"; // 🇵🇲 Saint Pierre and Miquelon
-    public static final String FLAG_WF = "U+1F1FCU+1F1EB"; // 🇼🇫 Wallis and Futuna
+    private static boolean hasDefaultLanguage(String flag) {
+        for(DefaultLanguage alpha2 : DefaultLanguage.values()) {
+            if(alpha2.name().equals(getAlpha2FromFlag(flag)))
+                return true;
+        }
+        return false;
+    }
 
-    // German
-    public static final String FLAG_AT = "U+1F1E6U+1F1F9"; // 🇦🇹 Austria
-    public static final String FLAG_DE = "U+1F1E9U+1F1EA"; // 🇩🇪 Germany
-    public static final String FLAG_LI = "U+1F1F1U+1F1EE"; // 🇱🇮 Liechtenstein
-    public static final String FLAG_CH = "U+1F1E8U+1F1ED"; // 🇨🇭 Switzerland
+    public static String getLanguageFromFlag(String flag) {
+        if(!isISOCountryFlag(flag))
+            return null;
 
-    // Greek
-    public static final String FLAG_GR = "U+1F1ECU+1F1F7"; // 🇬🇷 Greece
-    public static final String FLAG_CY = "U+1F1E8U+1F1FE"; // 🇨🇾 Cyprus
+        if(!hasDefaultLanguage(flag))
+            return null;
 
-    // Hindi
-    public static final String FLAG_IN = "U+1F1EEU+1F1F3"; // 🇮🇳 India
+        return DefaultLanguage.valueOf(getAlpha2FromFlag(flag)).getLanguage();
+    }
 
-    // Hungarian
-    public static final String FLAG_HU = "U+1F1EDU+1F1FA"; // 🇭🇺 Hungary
+    public static void main(String[] args) {
 
-    // Indonesian
-    public static final String FLAG_ID = "U+1F1EEU+1F1E9"; // 🇮🇩 Indonesia
+        for(String alpha2 : Locale.getISOCountries()) {
+            String language = getLanguageFromFlag(getFlagFromAlpha2(alpha2));
+            if(language!=null)
+                System.out.println(getFlagFromAlpha2(alpha2) + ' ' + language + '-' + alpha2);
+        }
 
-    // Italian
-    public static final String FLAG_IT = "U+1F1EEU+1F1F9"; // 🇮🇹 Italy
-    public static final String FLAG_SM = "U+1F1F8U+1F1F2"; // 🇸🇲 San Marino
-    public static final String FLAG_VA = "U+1F1FBU+1F1E6"; // 🇻🇦 Vatican City
-
-    // Japanese
-    public static final String FLAG_JP = "U+1F1EFU+1F1F5"; // 🇯🇵 Japan
-    public static final String FLAG_PW = "U+1F1F5U+1F1FC"; // 🇵🇼 Palau
-
-    // Korean
-    public static final String FLAG_KP = "U+1F1F0U+1F1F5"; // 🇰🇵 North Korea
-    public static final String FLAG_KR = "U+1F1F0U+1F1F7"; // 🇰🇷 South Korea
-
-    // Burmese
-    public static final String FLAG_MM = "U+1F1F2U+1F1F2"; // 🇲🇲 Myanmar
-
-    // Nepali
-    public static final String FLAG_NP = "U+1F1F3U+1F1F5"; // 🇳🇵 Nepal
-
-    // Norwegian
-    public static final String FLAG_NO = "U+1F1F3U+1F1F4"; // 🇳🇴 Norway
-
-    // Polish
-    public static final String FLAG_PL = "U+1F1F5U+1F1F1"; // 🇵🇱 Poland
-
-    // Portuguese
-    public static final String FLAG_BR = "U+1F1E7U+1F1F7"; // 🇧🇷 Brazil
-    public static final String FLAG_AO = "U+1F1E6U+1F1F4"; // 🇦🇴 Angola
-    public static final String FLAG_MZ = "U+1F1F2U+1F1FF"; // 🇲🇿 Mozambique
-    public static final String FLAG_PT = "U+1F1F5U+1F1F9"; // 🇵🇹 Portugal
-    public static final String FLAG_GW = "U+1F1ECU+1F1FC"; // 🇬🇼 Guinea-Bissau
-    public static final String FLAG_TL = "U+1F1F9U+1F1F1"; // 🇹🇱 East Timor
-    public static final String FLAG_CV = "U+1F1E8U+1F1FB"; // 🇨🇻 Cape Verde
-    public static final String FLAG_ST = "U+1F1F8U+1F1F9"; // 🇸🇹 São Tomé and Príncipe
-
-    // Romanian
-    public static final String FLAG_RO = "U+1F1F7U+1F1F4"; // 🇷🇴 Romania
-    public static final String FLAG_MD = "U+1F1F2U+1F1E9"; // 🇲🇩 Moldova
-
-    // Russian
-    public static final String FLAG_RU = "U+1F1F7U+1F1FA"; // 🇷🇺 Russia
-
-    // Slovak
-    public static final String FLAG_SK = "U+1F1F8U+1F1F0"; // 🇸🇰 Slovakia
-
-    // Spanish
-    public static final String FLAG_MX = "U+1F1F2U+1F1FD"; // 🇲🇽 Mexico
-    public static final String FLAG_CO = "U+1F1E8U+1F1F4"; // 🇨🇴 Colombia
-    public static final String FLAG_ES = "U+1F1EAU+1F1F8"; // 🇪🇸 Spain
-    public static final String FLAG_AR = "U+1F1E6U+1F1F7"; // 🇦🇷 Argentina
-    public static final String FLAG_VE = "U+1F1FBU+1F1EA"; // 🇻🇪 Venezuela
-    public static final String FLAG_PE = "U+1F1F5U+1F1EA"; // 🇵🇪 Peru
-    public static final String FLAG_CL = "U+1F1E8U+1F1F1"; // 🇨🇱 Chile
-    public static final String FLAG_EC = "U+1F1EAU+1F1E8"; // 🇪🇨 Ecuador
-    public static final String FLAG_GT = "U+1F1ECU+1F1F9"; // 🇬🇹 Guatemala
-    public static final String FLAG_CU = "U+1F1E8U+1F1FA"; // 🇨🇺 Cuba
-    public static final String FLAG_DO = "U+1F1E9U+1F1F4"; // 🇩🇴 Dominican Republic
-    public static final String FLAG_BO = "U+1F1E7U+1F1F4"; // 🇧🇴 Bolivia
-    public static final String FLAG_HN = "U+1F1EDU+1F1F3"; // 🇭🇳 Honduras
-    public static final String FLAG_SV = "U+1F1F8U+1F1FB"; // 🇸🇻 El Salvador
-    public static final String FLAG_NI = "U+1F1F3U+1F1EE"; // 🇳🇮 Nicaragua
-    public static final String FLAG_CR = "U+1F1E8U+1F1F7"; // 🇨🇷 Costa Rica
-    public static final String FLAG_PY = "U+1F1F5U+1F1FE"; // 🇵🇾 Paraguay
-    public static final String FLAG_PA = "U+1F1F5U+1F1E6"; // 🇵🇦 Panama
-    public static final String FLAG_UY = "U+1F1FAU+1F1FE"; // 🇺🇾 Uruguay
-    public static final String FLAG_PR = "U+1F1F5U+1F1F7"; // 🇵🇷 Puerto Rico
-    public static final String FLAG_GQ = "U+1F1ECU+1F1F6"; // 🇬🇶 Equatorial Guinea
-
-    // Swedish
-    public static final String FLAG_SE = "U+1F1F8U+1F1EA"; // 🇸🇪 Sweden
-    public static final String FLAG_AX = "U+1F1E6U+1F1FD"; // 🇦🇽 Åland Islands
-
-    // Thai
-    public static final String FLAG_TH = "U+1F1F9U+1F1ED"; // 🇹🇭 Thailand
-
-    // Turkish
-    public static final String FLAG_TR = "U+1F1F9U+1F1F7"; // 🇹🇷 Turkey
-
-    // Ukrainian
-    public static final String FLAG_UA = "U+1F1FAU+1F1E6"; // 🇺🇦 Ukraine
-
-    // Vietnamese
-    public static final String FLAG_VN = "U+1F1FBU+1F1F3"; // 🇻🇳 Vietnam
-
-    // English
-    public static final String FLAG_AU = "U+1F1E6U+1F1FA"; // 🇦🇺 Australia
-    public static final String FLAG_NZ = "U+1F1F3U+1F1FF"; // 🇳🇿 New Zealand
-    public static final String FLAG_GB = "U+1F1ECU+1F1E7"; // 🇬🇧 United Kingdom
-    public static final String FLAG_US = "U+1F1FAU+1F1F8"; // 🇺🇸 United States
-    public static final String FLAG_AG = "U+1F1E6U+1F1EC"; // 🇦🇬 Antigua and Barbuda
-    public static final String FLAG_BS = "U+1F1E7U+1F1F8"; // 🇧🇸 Bahamas
-    public static final String FLAG_BB = "U+1F1E7U+1F1E7"; // 🇧🇧 Barbados
-    public static final String FLAG_BZ = "U+1F1E7U+1F1FF"; // 🇧🇿 Belize
-    public static final String FLAG_BW = "U+1F1E7U+1F1FC"; // 🇧🇼 Botswana
-    public static final String FLAG_CA = "U+1F1E8U+1F1E6"; // 🇨🇦 Canada
-    public static final String FLAG_CK = "U+1F1E8U+1F1F0"; // 🇨🇰 Cook Islands
-    public static final String FLAG_DM = "U+1F1E9U+1F1F2"; // 🇩🇲 Dominica
-    public static final String FLAG_GM = "U+1F1ECU+1F1F2"; // 🇬🇲 Gambia
-    public static final String FLAG_GH = "U+1F1ECU+1F1ED"; // 🇬🇭 Ghana
-    public static final String FLAG_GD = "U+1F1ECU+1F1E9"; // 🇬🇩 Grenada
-    public static final String FLAG_GY = "U+1F1ECU+1F1FE"; // 🇬🇾 Guyana
-    public static final String FLAG_JM = "U+1F1EFU+1F1F2"; // 🇯🇲 Jamaica
-    public static final String FLAG_KE = "U+1F1F0U+1F1EA"; // 🇰🇪 Kenya
-    public static final String FLAG_KI = "U+1F1F0U+1F1EE"; // 🇰🇮 Kiribati
-    public static final String FLAG_LR = "U+1F1F1U+1F1F7"; // 🇱🇷 Liberia
-    public static final String FLAG_MW = "U+1F1F2U+1F1FC"; // 🇲🇼 Malawi
-    public static final String FLAG_FM = "U+1F1EBU+1F1F2"; // 🇫🇲 Micronesia
-    public static final String FLAG_NA = "U+1F1F3U+1F1E6"; // 🇳🇦 Namibia
-    public static final String FLAG_NG = "U+1F1F3U+1F1EC"; // 🇳🇬 Nigeria
-    public static final String FLAG_NU = "U+1F1F3U+1F1FA"; // 🇳🇺 Niue
-    public static final String FLAG_PK = "U+1F1F5U+1F1F0"; // 🇵🇰 Pakistan
-    public static final String FLAG_PG = "U+1F1F5U+1F1EC"; // 🇵🇬 Papua New Guinea
-    public static final String FLAG_RW = "U+1F1F7U+1F1FC"; // 🇷🇼 Rwanda
-    public static final String FLAG_KN = "U+1F1F0U+1F1F3"; // 🇰🇳 Saint Kitts and Nevis
-    public static final String FLAG_LC = "U+1F1F1U+1F1E8"; // 🇱🇨 Saint Lucia
-    public static final String FLAG_VC = "U+1F1FBU+1F1E8"; // 🇻🇨 Saint Vincent and The Grenadines
-    public static final String FLAG_SC = "U+1F1F8U+1F1E8"; // 🇸🇨 Seychelles
-    public static final String FLAG_SL = "U+1F1F8U+1F1F1"; // 🇸🇱 Sierra Leone
-    public static final String FLAG_SG = "U+1F1F8U+1F1EC"; // 🇸🇬 Singapore
-    public static final String FLAG_SB = "U+1F1F8U+1F1E7"; // 🇸🇧 Solomon Islands
-    public static final String FLAG_ZA = "U+1F1FFU+1F1E6"; // 🇿🇦 South Africa
-    public static final String FLAG_SS = "U+1F1F8U+1F1F8"; // 🇸🇸 South Sudan
-    public static final String FLAG_TO = "U+1F1F9U+1F1F4"; // 🇹🇴 Tonga
-    public static final String FLAG_TT = "U+1F1F9U+1F1F9"; // 🇹🇹 Trinidad and Tobago
-    public static final String FLAG_TV = "U+1F1F9U+1F1FB"; // 🇹🇻 Tuvalu
-    public static final String FLAG_UG = "U+1F1FAU+1F1EC"; // 🇺🇬 Uganda
-    public static final String FLAG_ZM = "U+1F1FFU+1F1F2"; // 🇿🇲 Zambia
-    public static final String FLAG_AS = "U+1F1E6U+1F1F8"; // 🇦🇸 American Samoa
-    public static final String FLAG_AI = "U+1F1E6U+1F1EE"; // 🇦🇮 Anguilla
-    public static final String FLAG_BM = "U+1F1E7U+1F1F2"; // 🇧🇲 Bermuda
-    public static final String FLAG_VG = "U+1F1FBU+1F1EC"; // 🇻🇬 British Virgin Islands
-    public static final String FLAG_KY = "U+1F1F0U+1F1FE"; // 🇰🇾 Cayman Islands
-    public static final String FLAG_FK = "U+1F1EBU+1F1F0"; // 🇫🇰 Falkland Islands
-    public static final String FLAG_GI = "U+1F1ECU+1F1EE"; // 🇬🇮 Gibraltar
-    public static final String FLAG_GU = "U+1F1ECU+1F1FA"; // 🇬🇺 Guam
-    public static final String FLAG_IM = "U+1F1EEU+1F1F2"; // 🇮🇲 Isle of Man
-    public static final String FLAG_JE = "U+1F1EFU+1F1EA"; // 🇯🇪 Jersey
-    public static final String FLAG_NF = "U+1F1F3U+1F1EB"; // 🇳🇫 Norfolk Island
-    public static final String FLAG_MP = "U+1F1F2U+1F1F5"; // 🇲🇵 Northern Mariana Islands
-    public static final String FLAG_PN = "U+1F1F5U+1F1F3"; // 🇵🇳 Pitcairn Islands
-    public static final String FLAG_TC = "U+1F1F9U+1F1E8"; // 🇹🇨 Turks and Caicos Islands
-    public static final String FLAG_VI = "U+1F1FBU+1F1EE"; // 🇻🇮 United States Virgin Islands
-    public static final String FLAG_IO = "U+1F1EEU+1F1F4"; // 🇮🇴 British Indian Ocean Territory
-    public static final String FLAG_MS = "U+1F1F2U+1F1F8"; // 🇲🇸 Montserrat
-    public static final String FLAG_SH = "U+1F1F8U+1F1ED"; // 🇸🇭 Saint Helena, Ascension and Tristan da Cunha
+    }
 
 }

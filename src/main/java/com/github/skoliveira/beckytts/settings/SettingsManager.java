@@ -56,8 +56,10 @@ public class SettingsManager implements GuildSettingsManager<Settings>
 
     private Settings createDefaultSettings(Guild guild)
     {
-        long roleId = guild.getIdLong(); // @everone id
-        return new Settings(this, 0, 0, roleId, 100, true, null);
+        Settings settings = SettingsBuilder.createDefault(this)
+                .setRole(guild.getIdLong()) // set role with @everyone id
+                .build();
+        return settings;
     }
 
     @Override
@@ -66,20 +68,27 @@ public class SettingsManager implements GuildSettingsManager<Settings>
             JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath("serversettings.json"))));
             loadedSettings.keySet().stream().forEach((id) -> {
                 JSONObject o = loadedSettings.getJSONObject(id);
-                Settings s = new Settings(this,
-                        (o.has("text_channel_id") ? o.getString("text_channel_id") : null),
-                        (o.has("voice_channel_id")? o.getString("voice_channel_id"): null),
-                        (o.has("role_id")         ? o.getString("role_id")         : null),
-                        (o.has("volume")          ? o.getInt("volume")             : 100),
-                        (o.has("autotts")         ? o.getBoolean("autotts")        : true),
-                        (o.has("prefix")          ? o.getString("prefix")          : null));
+                SettingsBuilder sb = SettingsBuilder.createDefault(this);
+                if(o.has("text_channel_id"))
+                    sb.setTextChannel(o.getLong("text_channel_id"));
+                if(o.has("voice_channel_id"))
+                    sb.setVoiceChannel(o.getLong("voice_channel_id"));
+                if(o.has("role_id"))
+                    sb.setRole(o.getLong("role_id"));
+                if(o.has("volume"))
+                    sb.setVolume(o.getInt("volume"));
+                if(o.has("prefix"))
+                    sb.setPrefix(o.getString("prefix"));
+                if(o.has("slang_interpreter"))
+                    sb.setSlangInterpreter(o.getBoolean("slang_interpreter"));
                 if(o.has("blacklist")) {
                     o.getJSONArray("blacklist").forEach((word) -> {
                         if(word!=null) {
-                            s.addInBlacklist(word.toString());
+                            sb.addInBlacklist(word.toString());
                         }
                     });
                 }
+                Settings s = sb.build();
                 settings.put(Long.parseLong(id), s);
             });
         } catch(IOException | JSONException e) {
@@ -93,19 +102,20 @@ public class SettingsManager implements GuildSettingsManager<Settings>
         settings.keySet().stream().forEach(key -> {
             JSONObject o = new JSONObject();
             Settings s = settings.get(key);
-            if(s.textId!=0)
-                o.put("text_channel_id", Long.toString(s.textId));
-            if(s.voiceId!=0)
-                o.put("voice_channel_id", Long.toString(s.voiceId));
-            if(s.roleId!=0)
-                o.put("role_id", Long.toString(s.roleId));
-            if(s.getVolume()!=100)
+            if(s.getTextChannelId() != 0)
+                o.put("text_channel_id", s.getTextChannelId());
+            if(s.getVoiceChannelId() != 0)
+                o.put("voice_channel_id", s.getVoiceChannelId());
+            if(s.getRoleId() != 0)
+                o.put("role_id", s.getRoleId());
+            if(s.getVolume() != 100)
                 o.put("volume",s.getVolume());
-            if(!s.getAutoTtsMode())
-                o.put("autotts", true);
             if(s.getPrefix() != null)
                 o.put("prefix", s.getPrefix());
-            o.put("blacklist", s.getBlacklist());
+            if(s.isSlangInterpreterEnabled())
+                o.put("slang_interpreter", true);
+            if(s.getBlacklist().length > 0)
+                o.put("blacklist", s.getBlacklist());
             obj.put(Long.toString(key), o);
         });
         try {

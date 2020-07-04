@@ -22,7 +22,7 @@ import javax.security.auth.login.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.skoliveira.beckytts.commands.admin.AutoTtsCmd;
+import com.github.skoliveira.beckytts.commands.admin.BlacklistCmd;
 import com.github.skoliveira.beckytts.commands.admin.PrefixCmd;
 import com.github.skoliveira.beckytts.commands.admin.SetroleCmd;
 import com.github.skoliveira.beckytts.commands.admin.SettcCmd;
@@ -127,7 +127,7 @@ public class BeckyTTS
                         new StopCmd(bot),
                         new VolumeCmd(bot),
 
-                        new AutoTtsCmd(bot),
+                        new BlacklistCmd(bot),
                         new PrefixCmd(bot),
                         new SetroleCmd(bot),
                         new SettcCmd(bot),

@@ -116,8 +116,6 @@ public class Listener extends ListenerAdapter
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
-        if(!settings.getAutoTtsMode())
-            return;
 
         TextChannel tchannel = settings.getTextChannel(event.getGuild());    	
         if(tchannel!=null && !event.getChannel().equals(tchannel))
@@ -151,7 +149,7 @@ public class Listener extends ListenerAdapter
         if(message.isBlank())
             return;
 
-        if(settings.getSlangMode()) {
+        if(settings.isSlangInterpreterEnabled()) {
             StringBuilder sb = new StringBuilder(message.length());
             String[] array = message.split(" |\\t");
             for(String e : array) {

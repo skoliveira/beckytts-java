@@ -11,8 +11,8 @@ import com.github.skoliveira.beckytts.settings.Settings;
 import com.github.skoliveira.beckytts.tts.MessageHearing;
 import com.github.skoliveira.beckytts.tts.gTTS;
 import com.github.skoliveira.beckytts.utils.FormatUtil;
+import com.github.skoliveira.beckytts.utils.LanguageUtil;
 import com.github.skoliveira.beckytts.utils.MessageUtil;
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -20,7 +20,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public class TtsCmd extends TTSRoleCommand
@@ -43,61 +42,44 @@ public class TtsCmd extends TTSRoleCommand
         Settings settings = bot.getSettingsManager().getSettings(event.getGuild());
         if(event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty())
         {
-            if(settings.getAutoTtsMode()) {
-                if(settings.containsAutoTtsUser(event.getMember()))
-                {
-                    settings.removeAutoTtsUser(event.getMember());
-                    event.replySuccess(event.getMember().getAsMention() + " is no longer an autotts user");
-                }
-                else 
-                {
-                    event.reply("Click on the flag to choose your language:", m -> {
-                        m.addReaction("🇺🇸").queue();
-                        m.addReaction("🇬🇧").queue();
-                        m.addReaction("🇦🇺").queue();
-                        m.addReaction("🇧🇷").queue();
-                        m.addReaction("🇵🇹").queue();
-                        m.addReaction("🇪🇸").queue();
-                        m.addReaction("🇫🇷").queue();
-                        m.addReaction("🇩🇪").queue();
-                        m.addReaction("🇮🇹").queue();
-                        m.addReaction("🇷🇺").queue();
-                        m.addReaction("🇯🇵").queue();
-                        m.addReaction("🇨🇳").queue();
-                        m.addReaction("🇰🇷").queue();
-                        bot.getWaiter().waitForEvent(MessageReactionAddEvent.class,
-                                e -> {
-                                    if(!e.getMessageId().equals(m.getId()))
-                                        return false;
-                                    if(!("🇧🇷".equals(e.getReactionEmote().getEmoji())))
-                                        return false;
-                                    return e.getUser().equals(event.getAuthor());
-                                },
-                                e -> {
-                                    ReactionEmote emote = e.getReactionEmote();
-                                    switch(emote.getEmoji())
-                                    {
-                                        case "🇧🇷":
-                                            break;
-                                    }
-                                    settings.addAutoTtsUser(event.getMember());
-                                    event.replySuccess(event.getMember().getAsMention() + " is now an autotts user");
-                                    m.delete().queueAfter(10, TimeUnit.SECONDS);
-                                },
-                                1, TimeUnit.MINUTES,
-                                () -> {
-                                    event.replyError("Sorry, you took too long.");
-                                    m.delete().queue();
-                                });
-                    });
-                }
-                return;
+            if(settings.containsAutoTtsUser(event.getMember()))
+            {
+                settings.removeAutoTtsUser(event.getMember());
+                event.replySuccess(event.getMember().getAsMention() + " is no longer an autotts user");
             }
-            StringBuilder builder = new StringBuilder(event.getClient().getWarning()+" TTS Command:\n");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" <text to speech>` - plays the text to speech");
-            for(Command cmd: children)
-                builder.append("\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName()).append(" ").append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
-            event.reply(builder.toString());
+            else 
+            {
+                event.reply("Click on the flag to choose your language:", m -> {
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("US")).queue(); // 🇺🇸
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("GB")).queue(); // 🇬🇧
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("AU")).queue(); // 🇦🇺
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("BR")).queue(); // 🇧🇷
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("PT")).queue(); // 🇵🇹
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("ES")).queue(); // 🇪🇸
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("FR")).queue(); // 🇫🇷
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("DE")).queue(); // 🇩🇪
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("IT")).queue(); // 🇮🇹
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("RU")).queue(); // 🇷🇺
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("JP")).queue(); // 🇯🇵
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("CN")).queue(); // 🇨🇳
+                    m.addReaction(LanguageUtil.getFlagFromAlpha2("KR")).queue(); // 🇰🇷
+                    bot.getWaiter().waitForEvent(MessageReactionAddEvent.class,
+                            (e -> e.getUser().equals(event.getAuthor()) &&
+                                    LanguageUtil.isISOCountryFlag(e.getReactionEmote().getEmoji())),
+                            e -> {
+                                String flag = e.getReactionEmote().getEmoji();
+                                String local = LanguageUtil.getLanguageFromFlag(flag) + '-' + LanguageUtil.getAlpha2FromFlag(flag);
+                                settings.addAutoTtsUser(event.getMember(), local);
+                                event.replySuccess(event.getMember().getAsMention() + " is now an autotts user");
+                                m.delete().queueAfter(5, TimeUnit.SECONDS);
+                            },
+                            1, TimeUnit.MINUTES,
+                            () -> {
+                                event.replyError("Sorry, you took too long.");
+                                m.delete().queue();
+                            });
+                });
+            }
             return;
         }
 
@@ -106,7 +88,7 @@ public class TtsCmd extends TTSRoleCommand
         if(message.isBlank())
             return;
 
-        if(settings.getSlangMode()) {
+        if(settings.isSlangInterpreterEnabled()) {
             StringBuilder sb = new StringBuilder(message.length());
             String[] array = message.split(" |\\t");
             for(String e : array) {

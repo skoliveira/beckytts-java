@@ -60,7 +60,6 @@ public class SettingsCmd extends Command
                         + "\nVoice Channel: " + (vchan == null ? "Any" : "**" + vchan.getName() + "**")
                         + "\nRole: " + (role == null ? "None" : "**" + role.getName() + "**")
                         + "\nCustom Prefix: " + (s.getPrefix() == null ? "None" : "`" + s.getPrefix() + "`")
-                        + "\nAutoTTS Mode: **" + (s.getAutoTtsMode() ? "On" : "Off") + "**"
                         )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
