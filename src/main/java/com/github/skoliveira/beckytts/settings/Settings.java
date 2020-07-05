@@ -39,7 +39,7 @@ public interface Settings extends GuildSettingsProvider {
     public void disableSlangInterpreter();
     public void addAutoTtsUser(Member member, String lang);
     public void removeAutoTtsUser(Member member);
-    public boolean addInBlacklist(String word);
-    public boolean removeFromBlacklist(String word);
+    public boolean addInBlacklist(String prefix);
+    public boolean removeFromBlacklist(String prefix);
 
 }
