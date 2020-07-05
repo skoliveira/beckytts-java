@@ -76,6 +76,12 @@ public class SettingsImpl implements Settings {
     {
         return prefix;
     }
+    
+    @Override
+    public Collection<String> getPrefixes()
+    {
+        return prefix == null ? Collections.emptySet() : Collections.singleton(prefix);
+    }
 
     @Override
     public boolean isSlangInterpreterEnabled()
@@ -99,6 +105,11 @@ public class SettingsImpl implements Settings {
             return false;
         return this.userslanguage.containsKey(member.getIdLong());
     }
+    
+    @Override
+    public String getAutoTtsLanguage(Member member) {
+        return this.userslanguage.get(member.getIdLong());
+    }
 
     @Override
     public String[] getBlacklist() {
@@ -107,12 +118,6 @@ public class SettingsImpl implements Settings {
 
 
     // Setters
-    @Override
-    public Collection<String> getPrefixes()
-    {
-        return prefix == null ? Collections.emptySet() : Collections.singleton(prefix);
-    }
-
     @Override
     public void setTextChannel(long tcid) {
         this.textId = tcid;
@@ -157,11 +162,7 @@ public class SettingsImpl implements Settings {
 
     @Override
     public void setPrefix(String prefix) {
-        if(this.prefix!=null)
-            this.removeFromBlacklist(this.prefix);
         this.prefix = prefix;
-        if(prefix!=null)
-            this.addInBlacklist(prefix);
         this.manager.writeSettings();
     }
 
@@ -190,12 +191,12 @@ public class SettingsImpl implements Settings {
     }
 
     @Override
-    public boolean addInBlacklist(String word) {
+    public boolean addInBlacklist(String prefix) {
         return blacklist.add(prefix);
     }
 
     @Override
-    public boolean removeFromBlacklist(String word) {
+    public boolean removeFromBlacklist(String prefix) {
         return blacklist.remove(prefix);
     }
 

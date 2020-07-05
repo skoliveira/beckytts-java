@@ -37,7 +37,7 @@ public class SettingsBuilder {
     }
     
     public Settings build() {
-        SettingsImpl settings = new SettingsImpl(manager, blacklist, userslanguage);
+        Settings settings = new SettingsImpl(manager, blacklist, userslanguage);
         settings.setTextChannel(textid);
         settings.setVoiceChannel(voiceid);
         settings.setRole(roleid);

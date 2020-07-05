@@ -57,7 +57,7 @@ public class SettingsManager implements GuildSettingsManager<Settings>
     private Settings createDefaultSettings(Guild guild)
     {
         Settings settings = SettingsBuilder.createDefault(this)
-                .setRole(guild.getIdLong()) // set role with @everyone id
+                .setRole(guild.getIdLong()) // @everyone id
                 .build();
         return settings;
     }
@@ -75,6 +75,8 @@ public class SettingsManager implements GuildSettingsManager<Settings>
                     sb.setVoiceChannel(o.getLong("voice_channel_id"));
                 if(o.has("role_id"))
                     sb.setRole(o.getLong("role_id"));
+                else
+                    sb.setRole(Long.parseUnsignedLong(id));
                 if(o.has("volume"))
                     sb.setVolume(o.getInt("volume"));
                 if(o.has("prefix"))
@@ -106,16 +108,18 @@ public class SettingsManager implements GuildSettingsManager<Settings>
                 o.put("text_channel_id", s.getTextChannelId());
             if(s.getVoiceChannelId() != 0)
                 o.put("voice_channel_id", s.getVoiceChannelId());
-            if(s.getRoleId() != 0)
+            if(s.getRoleId() != key)
                 o.put("role_id", s.getRoleId());
             if(s.getVolume() != 100)
-                o.put("volume",s.getVolume());
+                o.put("volume", s.getVolume());
             if(s.getPrefix() != null)
                 o.put("prefix", s.getPrefix());
             if(s.isSlangInterpreterEnabled())
                 o.put("slang_interpreter", true);
             if(s.getBlacklist().length > 0)
                 o.put("blacklist", s.getBlacklist());
+            else
+                o.remove("blacklist");
             obj.put(Long.toString(key), o);
         });
         try {

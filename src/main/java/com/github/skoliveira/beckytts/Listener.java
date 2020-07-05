@@ -139,19 +139,18 @@ public class Listener extends ListenerAdapter
 
         if(msg.matches("^<@!?" + event.getJDA().getSelfUser().getId() + ">[\\S\\s]*"))
             return;
-        for(String prefix : bot.getSettingsManager().getSettings(event.getGuild()).getBlacklist()) {
+        
+        if(msg.startsWith(settings.getPrefix()))
+            return;
+        
+        for(String prefix : settings.getBlacklist()) {
             if(msg.startsWith(prefix))
                 return;
         }
 
-        String message = new MessageHearing(event.getMessage()).getContentHearing();
-
-        if(message.isBlank())
-            return;
-
         if(settings.isSlangInterpreterEnabled()) {
-            StringBuilder sb = new StringBuilder(message.length());
-            String[] array = message.split(" |\\t");
+            StringBuilder sb = new StringBuilder(msg.length());
+            String[] array = msg.split(" |\\t");
             for(String e : array) {
                 String word = e.replaceAll("(\\p{L}+\\+|\\p{L}+).*", "$1");
                 if(settings.containsSlang(word)) {                
@@ -162,8 +161,13 @@ public class Listener extends ListenerAdapter
                 }
                 sb.append(' ');
             }
-            message = sb.toString().trim();
+            msg = sb.toString().trim();
         }
+
+        if(msg.isBlank())
+            return;
+
+        String message = new MessageHearing(event.getMessage()).getContentHearing();
 
         // build onomatopoeias
         message = MessageUtil.onomatopoeia(message);
@@ -172,7 +176,8 @@ public class Listener extends ListenerAdapter
         {
             try 
             {
-                event.getGuild().getAudioManager().setSelfDeafened(true);
+                if(!event.getGuild().getAudioManager().isSelfDeafened())
+                    event.getGuild().getAudioManager().setSelfDeafened(true);
                 event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
             }
             catch(PermissionException ex) 
@@ -184,13 +189,11 @@ public class Listener extends ListenerAdapter
         gTTS tts = new gTTS();
         String[] urls;
         try {
-            urls = tts.getTtsUrls(message);
+            urls = tts.getTtsUrls(message, settings.getAutoTtsLanguage(event.getMember()));
             for(String url : urls) {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(), url, new EventTtsHandler(event));
-                //event.getChannel().sendMessageFormat("%s", message).queue();
             }
         } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

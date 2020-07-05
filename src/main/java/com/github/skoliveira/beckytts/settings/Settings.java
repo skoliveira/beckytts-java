@@ -23,6 +23,7 @@ public interface Settings extends GuildSettingsProvider {
     public boolean containsSlang(String key);
     public String getSlangValue(String key);
     public boolean containsAutoTtsUser(Member member);
+    public String getAutoTtsLanguage(Member member);
     public String[] getBlacklist();
 
     // Setters
